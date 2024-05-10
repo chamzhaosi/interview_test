@@ -15,6 +15,7 @@ exit
 su -
 pip install django --break-system-packages
 pip install djangorestframework --break-system-packages
+pip install django-phonenumber-field[phonenumbers] --break-system-packages
 
 # To solve the problem of mysqlclient installation
 # Refer: https://stackoverflow.com/questions/76585758/mysqlclient-cannot-install-via-pip-cannot-find-pkg-config-name-in-ubuntu
@@ -23,6 +24,10 @@ apt -y install python3-dev default-libmysqlclient-dev build-essential pkg-config
 # Refer: https://www.geeksforgeeks.org/how-to-integrate-mysql-database-with-django/
 pip install mysqlclient --break-system-packages
 exit
+
+python3 manage.py dbshell
+DROP TABLE django_session;
+TRUNCATE TABLE django_migrations;
 
 ###############################################################################
 ### Django
@@ -40,7 +45,7 @@ apt -y update && apt -y dist-upgrade
 apt -y install mariadb-server
 mariadb-secure-installation
 systemctl status mariadb
-mysql -u root -p # root@czs
+mysql -u root -p website # root@czs
 
 ## Create a database
 CREATE DATABASE website;
@@ -57,7 +62,21 @@ SELECT user, host FROM mysql.user;
 # if want to drop user
 DROP USER 'django'@'localhost';
 
+# use database;
+USE website;
+
 # exit
 quit
 
+###############################################################################
+### Install Celery
+###############################################################################
+su -
+apt -y install redis-server
+pip install celery[redis] --break-system-packages
+redis-cli ping
+redis-server
+systemctl status redis
 
+# run celery
+celery -A backend_test worker -l info
