@@ -1,8 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import status
-from django.contrib.auth.models import User
-from .models import ClientsAccount
+import json
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+# from rest_framework import status
+# from django.contrib.auth.models import User
+# from .models import ClientsAccount
 from .tasks import create_user_task
 
 from .serializers import ClientRegistrationSerializer, ClientProfileSerializer
@@ -11,4 +14,6 @@ from .serializers import ClientRegistrationSerializer, ClientProfileSerializer
 @api_view(["POST"])
 def register(request):
     task = create_user_task.delay(request.data)
-    return Response({"Message": "User creation in progress."}) 
+    return Response({"Message": "User creation in progress.", "task_id":task.id}) 
+
+

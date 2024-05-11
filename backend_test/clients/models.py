@@ -5,7 +5,7 @@ from django.utils.timezone import now
 # Create your models here.
 class ClientsAccount(models.Model):
     username = models.CharField(max_length=20, blank=False, null=False, unique=True)
-    password = models.CharField(max_length=64, blank=False, null=False, editable=False)
+    password = models.CharField(max_length=64, blank=False, null=False)
     c_name = models.CharField(max_length=50, blank=False, null=False)
     email = models.EmailField(max_length=50, blank=False, null=False, unique=True)
     phone_number = PhoneNumberField(max_length=50, blank=False, null=False)

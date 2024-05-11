@@ -31,15 +31,18 @@ ALLOWED_HOSTS = ['localhost']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'realtime',
+    'clients',
+    'channels',
+    'rest_framework',
+    'phonenumber_field',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'clients',
-    'rest_framework',
-    'phonenumber_field',
 ]
 
 MIDDLEWARE = [
@@ -70,7 +73,19 @@ TEMPLATES = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+            "capacity": 1000,  # set the maximum number of channels in a group
+        },
+        'database': 2,  # Using Redis DB 2
+    },
+}
+
 WSGI_APPLICATION = 'backend_test.wsgi.application'
+ASGI_APPLICATION = 'backend_test.asgi.application'
 
 
 # Database
@@ -140,5 +155,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
-CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/0'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+CELERY_WORKER_CONCURRENCY = 4  # Number of concurrent worker processes
