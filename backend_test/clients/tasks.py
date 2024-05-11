@@ -9,24 +9,23 @@ def create_user_task(self, user_data):
         with transaction.atomic(): # Rollback if got problem
             createSerializer = ClientRegistrationSerializer(data=user_data)
             if createSerializer.is_valid(): # Django will handle error 
-                createUser = createSerializer.save()
+                createSerializer.save()
                 status = "SUCCESS"
                 remark = "User Create Successfully."
                 
                 # before return the message, save the task status into db
                 save_task_status(self.request.id, status, remark)
-                return {status:remark}
+                return {"status":status, "remark":remark}
           
             else:
                 status = "INVALID"
                 remark = ""
-                print(createSerializer.errors)
                 for _, errors in createSerializer.errors.items():
                     remark += ' '.join(str(e) for e in errors) + " "
                 
                 # before return the message, save the task status into db
                 save_task_status(self.request.id, status, remark)
-                return {status:remark}
+                return {"status":status, "remark":remark}
         
     except Exception as ex:
         status = "ERROR"
@@ -34,7 +33,7 @@ def create_user_task(self, user_data):
         
         # before return the message, save the task status into db
         save_task_status(self.request.id, status, remark)
-        return {status: remark}
+        return {"status":status, "remark":remark}
     
 
 # if not problem, then insert the task_id and status to TmpRegisterStatus

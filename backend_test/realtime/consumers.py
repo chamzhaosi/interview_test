@@ -8,7 +8,7 @@ class CallConsumer(WebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['task_id']
         self.room_group_name = self.room_name
         
-        print("%s create group" %self.room_group_name)
+        # print("%s create group" %self.room_group_name)
         
         async_to_sync(self.channel_layer.group_add)(
             self.room_group_name, self.channel_name
@@ -26,24 +26,21 @@ class CallConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         # Leave room group
-        print("Leave room group %s" %self.room_group_name)
+        # print("Leave room group %s" %self.room_group_name)
 
         async_to_sync(self.channel_layer.group_discard)(
             self.room_group_name,
             self.channel_name
         )
 
-        ## If get a notice like "21 of 50 channels over capacity in group"
-        ## then we need adjust the maximum value of the channels layer in Django setting.py
-
     # Receive message from client WebSocket
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        print(text_data_json)
 
         eventType = text_data_json['type']
         task_id = text_data_json['data']['task_id']
 
+        # once connected with websocket, the query check whether the queue task ready or not
         if eventType == 'check':
             tmpRegResult = TmpRegisterStatus.objects.all().filter(task_id=task_id)
             
@@ -53,12 +50,23 @@ class CallConsumer(WebsocketConsumer):
                     'status': tmpRegResult[0].status,
                     'remark': tmpRegResult[0].remark
                 }))
+                
+        else:
+            # once get the status from 'check' or task_message, then it from TmpRegisterStatus db
+            if eventType == 'delete':
+                TmpRegisterStatus.objects.all().filter(task_id=task_id).delete()
+                
+                self.send(text_data=json.dumps({
+                    'status': "DELETED",
+                    'remark': "The task id has been deleted"
+                }))
 
-
+    # this will be invoke by celery_event_listener.py
     def task_message(self, event):
         message = event['message']
         
         # Send message to WebSocket
         self.send(text_data=json.dumps({
-            'message': message
+            'status': message['status'],
+            'remark': message['remark']
         }))

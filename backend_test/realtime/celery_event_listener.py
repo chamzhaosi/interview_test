@@ -15,7 +15,7 @@ def announce_task_event(task_id, state):
         room_group_name,
         {
             'type': 'task_message',
-            'message': json.dumps({'task_id': task_id, 'state': state})
+            'message': state
         }
     )
     

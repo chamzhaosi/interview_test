@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import ClientsAccount, TmpRegisterStatus
-from hashlib import sha256
+from django.contrib.auth.hashers import make_password
 import re, time
 
 from phonenumber_field.serializerfields import PhoneNumberField
@@ -9,7 +9,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 class ClientRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientsAccount
-        fields = ['username', 'password', 'c_name', 'email', 'phone_number']
+        fields = ['username', 'password', 'c_name', 'role', 'email', 'phone_number']
         
         extra_kwargs = {
             "password" : {"write_only": True},
@@ -30,6 +30,10 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
         # phone number
         phone_number = PhoneNumberField()
         
+        # role
+        if "role" in data and data['role'].upper() != "USER" and data['role'].upper() != "ADMIN":
+            raise serializers.ValidationError({"role":"Only USER or ADMIN can be setted."})
+        
         return data
     
     def isInvalidPassword(self, password):
@@ -48,7 +52,8 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
             c_name=validated_data['c_name'],
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
-            password=sha256(validated_data['password'].encode('utf-8')).hexdigest()
+            password=make_password(validated_data['password']),
+            role=validated_data['role'].upper(),
         )
         user.save()
         return user
@@ -57,9 +62,14 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
 class ClientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientsAccount
-        fields = ['username', 'name', 'email', 'phone_number', 'active', 'update_on', 'create_on']
-        
-        
+        fields = ['id', 'username', 'c_name', 'email', 'phone_number', 'active', 'update_on', 'create_on']
+      
+# Serializer for displaying user profile information
+class ClientDeactivedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ClientsAccount  
+        fields = ['active']
+    
 class TmpRegisterStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = TmpRegisterStatus
