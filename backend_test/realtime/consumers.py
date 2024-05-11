@@ -1,6 +1,7 @@
 import json
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from clients.models import TmpRegisterStatus
 
 class CallConsumer(WebsocketConsumer):
     def connect(self):
@@ -41,10 +42,17 @@ class CallConsumer(WebsocketConsumer):
         print(text_data_json)
 
         eventType = text_data_json['type']
+        task_id = text_data_json['data']['task_id']
 
-        if eventType == 'login':
-            name = text_data_json['data']['name']
-            print("login " ,self.room_group_name)
+        if eventType == 'check':
+            tmpRegResult = TmpRegisterStatus.objects.all().filter(task_id=task_id)
+            
+            # if have, then return status and remark
+            if len(tmpRegResult):
+                self.send(text_data=json.dumps({
+                    'status': tmpRegResult[0].status,
+                    'remark': tmpRegResult[0].remark
+                }))
 
 
     def task_message(self, event):

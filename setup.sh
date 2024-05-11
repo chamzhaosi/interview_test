@@ -97,7 +97,7 @@ su -
 pip install aiohttp python-engineio "python-socketio[asyncio]" requests --break-system-packages
 
 ###############################################################################
-### Implement celery listening
+### Redis service
 ###############################################################################
 su -
 /etc/init.d/redis-server restart

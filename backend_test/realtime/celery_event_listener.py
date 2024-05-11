@@ -22,11 +22,11 @@ def announce_task_event(task_id, state):
 # Celery Signal handlers
 @task_success.connect
 def task_success_handler(sender=None, result=None, **kwargs):
-    announce_task_event(sender.request.id, 'SUCCESS')
+    announce_task_event(sender.request.id, result)
 
 @task_failure.connect
 def task_failure_handler(sender=None, exception=None, traceback=None, **kwargs):
-    announce_task_event(sender.request.id, 'FAILURE')
+    announce_task_event(sender.request.id, exception)
 
 @task_prerun.connect
 def task_prerun_handler(sender=None, task_id=None, task=None, **kwargs):

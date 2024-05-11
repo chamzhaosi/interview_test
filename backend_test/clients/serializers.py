@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ClientsAccount
+from .models import ClientsAccount, TmpRegisterStatus
 from hashlib import sha256
 import re, time
 
@@ -57,4 +57,10 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
 class ClientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientsAccount
-        fields = ['username', 'name', 'email', 'phone_number', 'active',b'update_on', 'create_on']
+        fields = ['username', 'name', 'email', 'phone_number', 'active', 'update_on', 'create_on']
+        
+        
+class TmpRegisterStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TmpRegisterStatus
+        fields = ['task_id', 'status', 'remark']

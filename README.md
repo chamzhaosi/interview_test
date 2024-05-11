@@ -9,6 +9,7 @@
             [] Redirect to the login page, if successful.
     2. [] Client Register page - for client
             [] Redirect to the login page, if successful.
+            [] Before call the API, connect the 
     3. [] Login page - for client and admin
             [] Redirect to the dashboard page, if successful.
                 [] Data Include: Name, Email, and Phone number.
