@@ -1,5 +1,6 @@
 import { NgClass, NgIf } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule, NgForm, NgModel} from '@angular/forms';
 import { StartsWithAlphabetDirective } from '../validators/startwithalphabet.validators';
 import { NoSpaceIncludeDirective } from '../validators/nospace.validators';
@@ -7,6 +8,7 @@ import { NoNumberIncludeDirective } from '../validators/nonumber.validators copy
 import { User } from '../interfaces/user';
 import { Router } from '@angular/router';
 import { UsersService } from '../services/users.service';
+import { WebsocketService } from '../services/websocket.service';
 
 @Component({
   selector: 'app-register-page',
@@ -15,8 +17,8 @@ import { UsersService } from '../services/users.service';
   templateUrl: './register-page.component.html',
   styleUrl: './register-page.component.css'
 })
-export class RegisterPageComponent {
-
+export class RegisterPageComponent implements OnDestroy {
+  messagesSubscription?: Subscription;
   hasUpperCase:boolean = false;
   hasLowerCase:boolean = false;
   hasDigit:boolean = false;
@@ -24,8 +26,11 @@ export class RegisterPageComponent {
   hasFiveLen:boolean = false;
   isPasswordMatch:boolean = false;
   isPasswordValid:boolean = false;
+  registerStatus!:string
+  registerRemark!:string
+  showMessage:boolean = false;
 
-  constructor(private userService: UsersService, private router: Router){}
+  constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){}
 
   checkPasswordFormat(password:NgModel){
     let passwordValue = password.value as string;
@@ -81,6 +86,7 @@ export class RegisterPageComponent {
   //   console.log(value.value)
   // }
 
+  i = 0;
   onSubmit(register_form:NgForm) {
     let newUser : User = {
       username : register_form.value.username,
@@ -91,13 +97,34 @@ export class RegisterPageComponent {
     }
     
     this.userService.postRegister('register', newUser).subscribe({
-      next:(response) => {
+      next:(response:any) => {
         if (response.status == 200){
-          console.log(response.body)
+
+          this.messagesSubscription = this.websocketService.getMessages(response.body['task_id']).subscribe({
+            next: (message) => {
+              let result = JSON.parse(message)
+              this.registerStatus = result.status
+              
+              if (this.registerStatus === "SUCCESS"){
+                this.router.navigate(['/login'])
+              }else{
+                this.registerRemark = result.remark
+                this.showMessage = true
+              }
+            },
+            error: (error) => console.error('Error receiving message:', error),
+            complete: () => console.log('Completed')
+          });
+        
         }
       }
     })
+
+    this.ngOnDestroy()
   }
 
-
+  ngOnDestroy() {
+    this.messagesSubscription?.unsubscribe();
+    this.websocketService.close();
+  }
 }

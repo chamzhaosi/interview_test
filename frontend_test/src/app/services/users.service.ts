@@ -30,6 +30,6 @@ export class UsersService {
 
   postRegister(path: string, user: User) {
     let fullUrl: string = env.http.apiUrl + path + "/";
-    return this.http.post(fullUrl, user, { withCredentials: true, observe: 'response' })
+    return this.http.post(fullUrl, user, {observe: 'response' })
   }
 }

@@ -2,7 +2,7 @@ export const environment = {
     production: true,
       hmr: false,
       http: {
-          apiUrl: 'http://localhost:8000/api/', 
+          apiUrl: 'https://localhost:8000/api/', 
       },
       websocket: {
           host: "localhost:8000",

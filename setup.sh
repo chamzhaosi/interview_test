@@ -4,8 +4,6 @@
 su -
 apt -y install chrony
 
-
-
 ###############################################################################
 ################################ Backend Part ################################
 ###############################################################################
@@ -147,3 +145,16 @@ npm init @angular frontend_test --no-standalone
 
 npm install bootstrap
 
+###############################################################################
+### run server with ssl key and cert
+###############################################################################
+su - 
+pip install django-extensions Werkzeug --break-system-packages
+export DJANGO_SETTINGS_MODULE=backend_test.settings
+
+cd /home/engineer/interview_test/backend_test
+# python3 manage.py runserver_plus --key-file /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem --cert-file /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
+daphne -e ssl:8000:privateKey=/etc/nginx/ssl/chamzhaosi.com-main-privkey.pem:certKey=/etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem backend_test.asgi:application
+
+cd /home/engineer/interview_test/frontend_test
+ng serve --ssl true --ssl-key /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem --ssl-cert /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem

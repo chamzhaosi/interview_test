@@ -20,8 +20,8 @@ def create_user_task(self, user_data):
             else:
                 status = "INVALID"
                 remark = ""
-                for _, errors in createSerializer.errors.items():
-                    remark += ' '.join(str(e) for e in errors) + " "
+                for field, errors in createSerializer.errors.items():
+                    remark += field + " : " + " ".join(str(e) for e in errors) + " "
                 
                 # before return the message, save the task status into db
                 save_task_status(self.request.id, status, remark)

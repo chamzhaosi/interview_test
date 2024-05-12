@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'phonenumber_field',
     'corsheaders',
+    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +59,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:4200",
+    "https://localhost:4200",
 ]
 
 CORS_ALLOW_METHODS = [

@@ -47,13 +47,14 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"password":"The password must contain at least one special character."})
     
     def create(self, validated_data):
+        
+        
         user = ClientsAccount.objects.create(
             username=validated_data['username'],
             fullname=validated_data['fullname'],
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
             password=make_password(validated_data['password']),
-            role=validated_data['role'].upper(),
         )
         user.save()
         return user
