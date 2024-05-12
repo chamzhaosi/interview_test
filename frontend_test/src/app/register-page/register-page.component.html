@@ -10,10 +10,10 @@
                 aria-describedby="usernameHelp" 
                 name="username" 
                 ngModel
-                onSpaceInclude
+                noSpaceInclude
                 startsWithAlphabet
                 #username ='ngModel' 
-                (change)="getValue(username)" 
+                
                 required
                 [ngClass] = "{'is-invalid':username.touched && username.invalid}"
                 minlength="5"
@@ -26,7 +26,7 @@
                 <div *ngIf="username.hasError('minlength')" class="m-0 p-0">
                     <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username must at be atleast 5 characters.</p> </div>
                 </div>
-                <div *ngIf = "username.hasError('onSpaceInclude')" class="m-0 p-0">
+                <div *ngIf = "username.hasError('noSpaceInclude')" class="m-0 p-0">
                     <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username cannot contain spaces.</p> </div>
                 </div>
                 <div *ngIf = "username.hasError('startsWithAlphabet')" class="m-0 p-0">
@@ -43,7 +43,6 @@
               name="email" 
               ngModel
               #email= 'ngModel'
-              (change)="getValue(email)" 
               [ngClass] = "{'is-invalid':email.touched && email.invalid}"
               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
               required
@@ -54,28 +53,93 @@
             </div>
             
             <div *ngIf = "email.hasError('pattern')">
-                <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger fw-light"> Invalid Email Address.</p> </div>
+                <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger fw-light"> Invalid email address.</p> </div>
             </div>
 
             </div>
             <div class="mb-3">
-                <label for="nameInput" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="nameInput" name="name" ngModel>
+                <label for="fullnameInput" class="form-label">Full Name</label>
+                <input type="text" 
+                class="form-control" 
+                id="fullnameInput" 
+                name="fullname" 
+                noNumberInclude
+                ngModel 
+                #fullname="ngModel" 
+                [ngClass] = "{'is-invalid':fullname.touched && fullname.invalid}"
+                required>
+
+                <div *ngIf = "fullname.hasError('required')">
+                    <div  *ngIf = "fullname.touched && fullname.invalid"> <p class="text-danger fw-light"> Fullname is required.</p> </div>
+                </div>
+
+                <div *ngIf = "fullname.hasError('noNumberInclude')">
+                    <div  *ngIf = "fullname.touched && fullname.invalid"> <p class="text-danger fw-light"> Fullname cannot containt with number.</p> </div>
+                </div>
+
             </div>
             <div class="mb-3">
                 <label for="phoneNumberInput" class="form-label">Phone Number</label>
-                <input type="text" class="form-control" id="phoneNumberInput" name="phone_number" ngModel>
+                <input type="text" 
+                class="form-control" 
+                id="phoneNumberInput" 
+                name="phone_number" 
+                ngModel
+                #phone_number = "ngModel"
+                pattern="^\+60\d{9,10}$"
+                required
+                >
+
+                <div *ngIf = "phone_number.hasError('required')">
+                    <div  *ngIf = "phone_number.touched && phone_number.invalid"> <p class="text-danger fw-light"> Phone number is required.</p> </div>
+                </div>
+                
+                <div *ngIf = "phone_number.hasError('pattern')">
+                    <div  *ngIf = "phone_number.touched && phone_number.invalid"> <p class="text-danger fw-light"> Phone number must start with +60 followed by 9 to 10 digits..</p> </div>
+                </div>
+
             </div>
             <div class="mb-3">
               <label for="passwordInput" class="form-label">Password</label>
-              <input type="password" class="form-control" id="passwordInput" name="password" ngModel>
+              <input type="password" 
+              class="form-control" 
+              id="passwordInput" 
+              name="password" 
+              ngModel 
+              #password = "ngModel"
+              (input) = 'checkPasswordFormat(password)'
+              required
+              >
+
+            <div *ngIf = "password.hasError('required')">
+                <div  *ngIf = "password.touched && password.invalid"> <p class="text-danger fw-light"> Password is required.</p> </div>
+            </div>
+            <p class="fw-light m-0" [ngClass] = "hasUpperCase ? 'text-success' : 'text-danger'"> * Must atleast one uppercase.</p> 
+            <p class="fw-light m-0" [ngClass] = "hasLowerCase ? 'text-success' : 'text-danger'"> * Must atleast one lowercase.</p> 
+            <p class="fw-light m-0" [ngClass] = "hasDigit ? 'text-success' : 'text-danger'"> * Must atleast one digit.</p> 
+            <p class="fw-light m-0" [ngClass] = "hasSpecialChar ? 'text-success' : 'text-danger'"> * Must atleast one special character.</p> 
+            <p class="fw-light m-0" [ngClass] = "hasFiveLen ? 'text-success' : 'text-danger'"> * Must alteast has 5 characters.</p> 
+       
             </div>
             <div class="mb-3">
                 <label for="confirmPasswordInput" class="form-label">Confirm Password</label>
-                <input type="password" class="form-control" id="confirmPasswordInput" name="confirm_password" ngModel>
-              </div>
+                <input type="password" 
+                class="form-control" 
+                id="confirmPasswordInput" 
+                name="confirm_password" 
+                #confirm_password = "ngModel"
+                (input) = 'matchPassword(password, confirm_password)'
+                ngModel
+                required
+                [disabled] = !isPasswordValid
+                >
+
+                <div *ngIf = "confirm_password.touched && !isPasswordMatch">
+                    <p class="fw-light m-0 text-danger"> Password not matched</p> 
+                </div>
+            </div>
             
-            <button type="submit" class="btn btn-primary" [disabled] = 'register_form.invalid' >Submit</button>
+            <button type="submit" class="btn btn-primary" [disabled] = 'register_form.invalid || !isPasswordMatch || !isPasswordValid' >Submit</button>
           </form>
     </div>
 </div>
