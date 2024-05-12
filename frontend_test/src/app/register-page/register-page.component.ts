@@ -29,6 +29,8 @@ export class RegisterPageComponent implements OnDestroy {
   registerStatus!:string
   registerRemark!:string
   showMessage:boolean = false;
+  showMessageColor!:string;
+  showLoadingPage:boolean = false;
 
   constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){}
 
@@ -100,27 +102,46 @@ export class RegisterPageComponent implements OnDestroy {
       next:(response:any) => {
         if (response.status == 200){
 
+          this.showLoadingPage = true;
+
           this.messagesSubscription = this.websocketService.getMessages(response.body['task_id']).subscribe({
             next: (message) => {
               let result = JSON.parse(message)
               this.registerStatus = result.status
               
               if (this.registerStatus === "SUCCESS"){
-                this.router.navigate(['/login'])
-              }else{
+                this.showMessageColor = "success"
                 this.registerRemark = result.remark
                 this.showMessage = true
+
+                this.router.navigate(['/login'])
+              }else{
+                this.showMessageColor = "danger"
+                this.registerRemark = this.formatErrorMessage(result.remark)
+                this.showMessage = true
               }
+
+              this.showLoadingPage = false;
             },
-            error: (error) => console.error('Error receiving message:', error),
-            complete: () => console.log('Completed')
+            error: (error) => {
+              console.error('Error receiving message:', error)
+              this.showLoadingPage = false;
+            }
           });
-        
         }
       }
     })
 
     this.ngOnDestroy()
+  }
+
+  formatErrorMessage(errorString:string):string{
+    const errors = errorString.split('. ').filter(Boolean); // Split by '. ' and remove empty entries
+    const formattedErrors = errors.map(error => {
+      // Capitalize the first letter and ensure proper punctuation
+      return error.charAt(0).toUpperCase() + error.slice(1) + (error.endsWith('.') ? '' : '.');
+    });
+    return formattedErrors.join('\n');
   }
 
   ngOnDestroy() {

@@ -17,8 +17,8 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
     
     def validate(self, data):
         # username
-        if len(data['username']) < 5 or data['username'][0:1].isdigit():
-            raise serializers.ValidationError({"username":"Username must more than 5 characters and start with alphabet"})
+        if len(data['username']) < 5 or data['username'][0:1].isdigit() or re.search(r"\s", data['username']):
+            raise serializers.ValidationError({"username":"Username must be more than 5 characters long and start with a letter, without any spaces"})
 
         # password
         self.isInvalidPassword(data['password'])
