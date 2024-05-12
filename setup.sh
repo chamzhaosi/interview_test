@@ -5,6 +5,10 @@ su -
 apt -y install chrony
 
 ###############################################################################
+################################ Backend Part ################################
+###############################################################################
+
+###############################################################################
 ### Install Python3 and Related Library
 ###############################################################################
 
@@ -116,5 +120,27 @@ su -
 # Refer: https://medium.com/django-unleashed/securing-django-rest-apis-with-jwt-authentication-using-simple-jwt-a-step-by-step-guide-28efa84666fe
 su -
 pip install PyJWT django-cors-headers  --break-system-packages
-# pip install djangorestframework_simplejwt django-cors-headers  --break-system-packages (use it in fucture)
+# pip install djangorestframework_simplejwt django-cors-headers  --break-system-packages (use it in future)
 
+###############################################################################
+################################ Frontend Part ################################
+###############################################################################
+
+###############################################################################
+### Install Node.js
+###############################################################################
+su -
+apt -y update && apt -y dist-upgrade
+apt -y install nodejs npm
+node --version # v18.19.0
+npm --version # 9.2.0
+
+###############################################################################
+### Start Angular
+###############################################################################
+npm install -g @angular/cli
+ng version
+npm init @angular frontend_test --no-standalone
+# ng new --no-standalone
+
+npm install bootstrap

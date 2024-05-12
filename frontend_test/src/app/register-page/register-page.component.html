@@ -1,0 +1,81 @@
+<div class="container">
+    <div class="form-area">
+        <form #register_form = 'ngForm' (ngSubmit) = "onSubmit(register_form)">
+            <div class="mb-3">
+                <label for="usernameInput" class="form-label">Username</label>
+                
+                <input type="text" 
+                class="form-control" 
+                id="usernameInput" 
+                aria-describedby="usernameHelp" 
+                name="username" 
+                ngModel
+                onSpaceInclude
+                startsWithAlphabet
+                #username ='ngModel' 
+                (change)="getValue(username)" 
+                required
+                [ngClass] = "{'is-invalid':username.touched && username.invalid}"
+                minlength="5"
+                maxlength="10"
+                >
+
+                <div *ngIf="username.hasError('required')" class="m-0 p-0">
+                    <div  *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username is required.</p> </div>
+                </div>
+                <div *ngIf="username.hasError('minlength')" class="m-0 p-0">
+                    <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username must at be atleast 5 characters.</p> </div>
+                </div>
+                <div *ngIf = "username.hasError('onSpaceInclude')" class="m-0 p-0">
+                    <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username cannot contain spaces.</p> </div>
+                </div>
+                <div *ngIf = "username.hasError('startsWithAlphabet')" class="m-0 p-0">
+                    <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-light m-0"> * Username cannot start with numbering.</p> </div>
+                </div>
+                
+            </div>
+            <div class="mb-3">
+              <label for="emailInput" class="form-label">Email address</label>
+              <input type="email" 
+              class="form-control" 
+              id="emailInput" 
+              aria-describedby="emailHelp" 
+              name="email" 
+              ngModel
+              #email= 'ngModel'
+              (change)="getValue(email)" 
+              [ngClass] = "{'is-invalid':email.touched && email.invalid}"
+              pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" 
+              required
+              >
+
+            <div *ngIf = "email.hasError('required')">
+                <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger fw-light"> Email is required.</p> </div>
+            </div>
+            
+            <div *ngIf = "email.hasError('pattern')">
+                <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger fw-light"> Invalid Email Address.</p> </div>
+            </div>
+
+            </div>
+            <div class="mb-3">
+                <label for="nameInput" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="nameInput" name="name" ngModel>
+            </div>
+            <div class="mb-3">
+                <label for="phoneNumberInput" class="form-label">Phone Number</label>
+                <input type="text" class="form-control" id="phoneNumberInput" name="phone_number" ngModel>
+            </div>
+            <div class="mb-3">
+              <label for="passwordInput" class="form-label">Password</label>
+              <input type="password" class="form-control" id="passwordInput" name="password" ngModel>
+            </div>
+            <div class="mb-3">
+                <label for="confirmPasswordInput" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirmPasswordInput" name="confirm_password" ngModel>
+              </div>
+            
+            <button type="submit" class="btn btn-primary" [disabled] = 'register_form.invalid' >Submit</button>
+          </form>
+    </div>
+</div>

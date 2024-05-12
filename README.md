@@ -40,7 +40,7 @@
 					- If the process still in processing, then will wait unitl a message which send by celery listener.
 					- Once received all necessary info, frontend will send a delete query the delete the task_id in a temporary db.
 			[x] Install Redis
-	5. [x] Json Web Token
+	5. [x] Json Web Token (PyJWT)
 			[x] JWT set cookies when login
 			[x] Delete cookies when logout
 
