@@ -19,7 +19,7 @@ def register(request):
 
 
 @api_view(["GET"])
-def read_user_data(request):
+def login(request):
     response = Response()
     
     username = request.data.get('username', default=None)
@@ -77,7 +77,7 @@ def read_dashboard_data(request):
                     "client_info": {
                         # "id": user.id,
                         "username": client.username,
-                        "name" : client.c_name,
+                        "name" : client.fullname,
                         "email": client.email,
                         "phone_number": str(client.phone_number),
                         "role" : client.role,

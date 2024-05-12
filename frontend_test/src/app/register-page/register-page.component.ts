@@ -4,6 +4,9 @@ import { FormsModule, NgForm, NgModel} from '@angular/forms';
 import { StartsWithAlphabetDirective } from '../validators/startwithalphabet.validators';
 import { NoSpaceIncludeDirective } from '../validators/nospace.validators';
 import { NoNumberIncludeDirective } from '../validators/nonumber.validators copy';
+import { User } from '../interfaces/user';
+import { Router } from '@angular/router';
+import { UsersService } from '../services/users.service';
 
 @Component({
   selector: 'app-register-page',
@@ -21,6 +24,8 @@ export class RegisterPageComponent {
   hasFiveLen:boolean = false;
   isPasswordMatch:boolean = false;
   isPasswordValid:boolean = false;
+
+  constructor(private userService: UsersService, private router: Router){}
 
   checkPasswordFormat(password:NgModel){
     let passwordValue = password.value as string;
@@ -72,15 +77,27 @@ export class RegisterPageComponent {
     this.isPasswordMatch = password.value === c_password.value;
   }
   
-  getValue(value:NgModel){
-    // Check password 
-
-    console.log(value.value)
-
-
-  }
+  // getValue(value:NgModel){
+  //   console.log(value.value)
+  // }
 
   onSubmit(register_form:NgForm) {
-    console.log(register_form)
+    let newUser : User = {
+      username : register_form.value.username,
+      password : register_form.value.password,
+      email : register_form.value.email,
+      fullname : register_form.value.fullname,
+      phone_number : register_form.value.phone_number,
+    }
+    
+    this.userService.postRegister('register', newUser).subscribe({
+      next:(response) => {
+        if (response.status == 200){
+          console.log(response.body)
+        }
+      }
+    })
   }
+
+
 }

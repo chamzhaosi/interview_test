@@ -9,7 +9,7 @@ from phonenumber_field.serializerfields import PhoneNumberField
 class ClientRegistrationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientsAccount
-        fields = ['username', 'password', 'c_name', 'role', 'email', 'phone_number']
+        fields = ['username', 'password', 'fullname', 'role', 'email', 'phone_number']
         
         extra_kwargs = {
             "password" : {"write_only": True},
@@ -24,8 +24,8 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
         self.isInvalidPassword(data['password'])
 
         # name
-        if len(data['c_name']) < 5 or re.findall('[0-9]', data['c_name']):
-            raise serializers.ValidationError({"c_name":"Name must more than 5 characters and cannot contain any digit."})
+        if len(data['fullname']) < 5 or re.findall('[0-9]', data['fullname']):
+            raise serializers.ValidationError({"fullname":"Name must more than 5 characters and cannot contain any digit."})
 
         # phone number
         phone_number = PhoneNumberField()
@@ -49,7 +49,7 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = ClientsAccount.objects.create(
             username=validated_data['username'],
-            c_name=validated_data['c_name'],
+            fullname=validated_data['fullname'],
             email=validated_data['email'],
             phone_number=validated_data['phone_number'],
             password=make_password(validated_data['password']),
@@ -62,7 +62,7 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
 class ClientProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientsAccount
-        fields = ['id', 'username', 'c_name', 'email', 'phone_number', 'active', 'update_on', 'create_on']
+        fields = ['id', 'username', 'fullname', 'email', 'phone_number', 'active', 'update_on', 'create_on']
       
 # Serializer for displaying user profile information
 class ClientDeactivedSerializer(serializers.ModelSerializer):

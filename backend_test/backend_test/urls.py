@@ -21,7 +21,7 @@ from clients import views as clients_views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/register/', clients_views.register),
-    path('api/login/', clients_views.read_user_data),
+    path('api/login/', clients_views.login),
     path('api/dashboard/', clients_views.read_dashboard_data),
     path('api/update_clients/', clients_views.update_user_detail),
     path('api/update_clients/<int:id>', clients_views.update_user_detail),
