@@ -113,6 +113,8 @@ su -
 ###############################################################################
 ### Install JWT
 ###############################################################################
+# Refer: https://medium.com/django-unleashed/securing-django-rest-apis-with-jwt-authentication-using-simple-jwt-a-step-by-step-guide-28efa84666fe
 su -
 pip install PyJWT django-cors-headers  --break-system-packages
+# pip install djangorestframework_simplejwt django-cors-headers  --break-system-packages (use it in fucture)
 
