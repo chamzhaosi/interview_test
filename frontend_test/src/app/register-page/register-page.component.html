@@ -3,14 +3,15 @@
         <div *ngIf="showLoadingPage" class="vh-100 d-flex align-items-center">
             <div class="loader m-auto"></div>
         </div>
+        <div *ngIf="!showLoadingPage" class="col-lg-6 col-12 text-light">
+            <h3 *ngIf="dashboardTitle; else createUserTitle" class="my-4 text-dark">{{ dashboardTitle }}</h3>
+            <ng-template #createUserTitle><h3 class="my-4 text-dark">Create an account</h3></ng-template>
 
-        <div *ngIf="!showLoadingPage" class="col-lg-6 col-12">
-            <h3 class="my-4">Create an account</h3>
             <div *ngIf = "showMessage">
                 <div class="alert alert-{{showMessageColor}}">{{registerRemark}}</div>
             </div>
             <div class="form-area mb-4">
-                <form class="rounded p-3" #register_form = 'ngForm' (ngSubmit) = "onSubmit(register_form)">
+                <form class="rounded p-3" #register_form = 'ngForm' (ngSubmit) = "dashboardTitle ? handleUpdate(register_form) : onSubmit(register_form)">
                     <div class="row">
                         <div class="mb-3 col-sm-6 col-12">
                             <label for="usernameInput" class="form-label">Username</label>
@@ -25,23 +26,22 @@
                             #username ='ngModel' 
                             [(ngModel)] = "userName"
                             required
-                            [ngClass] = "{'is-invalid': (username.touched && username.invalid) || usernameExists }"
-                            (change) ="changeValue(username)"
+                            [ngClass] = "{'is-invalid': (username.touched && username.invalid) || usernameExists || isUsernameInputEmpty}"
+                            (blur) ="changeValue(username)"
                             minlength="5"
-                            maxlength="10"
                             >
             
-                            <div *ngIf="username.hasError('required')" class="m-0 p-0">
-                                <div  *ngIf = "username.touched && username.invalid"> <p class="text-danger m-0 fs-7"> * Username is required.</p> </div>
+                            <div *ngIf="username.hasError('required') || isUsernameInputEmpty" class="m-0 p-0">
+                                <div  *ngIf = "(username.touched && username.invalid) || isUsernameInputEmpty"> <p class="text-danger fw-bold m-0 fs-7"> Username is required.</p> </div>
                             </div>
                             <div *ngIf="username.hasError('minlength')" class="m-0 p-0">
-                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger  m-0 fs-7"> * Username must at be atleast 5 characters.</p> </div>
+                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-bold m-0 fs-7"> Username must at be atleast 5 characters.</p> </div>
                             </div>
                             <div *ngIf = "username.hasError('noSpaceInclude')" class="m-0 p-0">
-                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger  m-0 fs-7"> * Username cannot contain spaces.</p> </div>
+                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-bold m-0 fs-7"> Username cannot contain spaces.</p> </div>
                             </div>
                             <div *ngIf = "username.hasError('startsWithAlphabet')" class="m-0 p-0">
-                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger  m-0 fs-7"> * Username cannot start with numbering.</p> </div>
+                                <div *ngIf = "username.touched && username.invalid"> <p class="text-danger fw-bold m-0 fs-7"> Username cannot start with numbering.</p> </div>
                             </div>
                             
                         </div>
@@ -55,18 +55,19 @@
                             ngModel
                             [(ngModel)] = "userEmail"
                             #email= 'ngModel'
-                            (change) ="changeValue(email)"
-                            [ngClass] = "{'is-invalid': (email.touched && email.invalid) || emailExists}"
+                            (blur) ="changeValue(email)"
+                            [ngClass] = "{'is-invalid': (email.touched && email.invalid) || emailExists || isEmailInputEmpty}"
                             pattern='[a-z0-9._%+\\-]+@[a-z0-9.-]+\.[a-z]{2,4}$'
                             required
+                            [value] = dbEmail
                             >
             
-                        <div *ngIf = "email.hasError('required')">
-                            <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger  fs-7"> Email is required.</p> </div>
+                        <div *ngIf = "email.hasError('required') || isEmailInputEmpty">
+                            <div  *ngIf = "(email.touched && email.invalid) || isEmailInputEmpty"> <p class="text-danger fw-bold fs-7"> Email is required.</p> </div>
                         </div>
                         
                         <div *ngIf = "email.hasError('pattern')">
-                            <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger  fs-7"> Invalid email address.</p> </div>
+                            <div  *ngIf = "email.touched && email.invalid"> <p class="text-danger fw-bold fs-7"> Invalid email address.</p> </div>
                         </div>
             
                         </div>
@@ -82,15 +83,18 @@
                             ngModel 
                             [(ngModel)] = "userFullname"
                             #fullname="ngModel" 
-                            [ngClass] = "{'is-invalid':fullname.touched && fullname.invalid}"
-                            required>
+                            (blur) = "changeValue(fullname)"
+                            [ngClass] = "{'is-invalid':(fullname.touched && fullname.invalid) || isFullnameInputEmpty}"
+                            [value] = dbFullname
+                            required
+                            >
             
-                            <div *ngIf = "fullname.hasError('required')">
-                                <div  *ngIf = "fullname.touched && fullname.invalid"> <p class="text-danger  fs-7"> Fullname is required.</p> </div>
+                            <div *ngIf = "fullname.hasError('required') || isFullnameInputEmpty">
+                                <div  *ngIf = "(fullname.touched && fullname.invalid) || isFullnameInputEmpty"> <p class="text-danger fw-bold fs-7"> Fullname is required.</p> </div>
                             </div>
             
                             <div *ngIf = "fullname.hasError('noNumberInclude')">
-                                <div  *ngIf = "fullname.touched && fullname.invalid"> <p class="text-danger  fs-7"> Fullname cannot containt with number.</p> </div>
+                                <div  *ngIf = "fullname.touched && fullname.invalid"> <p class="text-danger fw-bold fs-7"> Fullname cannot containt with number.</p> </div>
                             </div>
             
                         </div>
@@ -103,17 +107,19 @@
                             ngModel
                             #phone_number = "ngModel"
                             [(ngModel)] = "userPhoneNumber"
+                            (blur) = "changeValue(phone_number)"
                             pattern="^\+60\d{9,10}$"
-                            [ngClass] = "{'is-invalid':phone_number.touched && phone_number.invalid}"
+                            [ngClass] = "{'is-invalid':(phone_number.touched && phone_number.invalid )|| isPhoneNumberInputEmpty}"
+                            [value] = dbPhonenumber
                             required
                             >
             
-                            <div *ngIf = "phone_number.hasError('required')">
-                                <div  *ngIf = "phone_number.touched && phone_number.invalid"> <p class="text-danger  fs-7"> Phone number is required.</p> </div>
+                            <div *ngIf = "phone_number.hasError('required') || isPhoneNumberInputEmpty">
+                                <div  *ngIf = "(phone_number.touched && phone_number.invalid) || isPhoneNumberInputEmpty"> <p class="text-danger fw-bold fs-7"> Phone number is required.</p> </div>
                             </div>
                             
                             <div *ngIf = "phone_number.hasError('pattern')">
-                                <div  *ngIf = "phone_number.touched && phone_number.invalid"> <p class="text-danger  fs-7"> Phone number must start with +60 followed by 9 to 10 digits..</p> </div>
+                                <div  *ngIf = "phone_number.touched && phone_number.invalid"> <p class="text-danger fw-bold fs-7"> Phone number must start with +60 followed by 9 to 10 digits..</p> </div>
                             </div>
             
                         </div>
@@ -126,19 +132,20 @@
                         name="password" 
                         ngModel 
                         #password = "ngModel"
+                        (blur) = "changeValue(password)"
                         (input) = 'checkPasswordFormat(password)'
-                        [ngClass] = "{'is-invalid':password.touched && password.invalid}"
+                        [ngClass] = "{'is-invalid':(password.touched && password.invalid) || isPasswordInputEmpty}"
                         required
                         >
         
-                    <div *ngIf = "password.hasError('required')">
-                        <div  *ngIf = "password.touched && password.invalid"> <p class="text-danger fs-7"> Password is required.</p> </div>
+                    <div *ngIf = "password.hasError('required') || isPasswordInputEmpty">
+                        <div  *ngIf = "(password.touched && password.invalid) || isPasswordInputEmpty"> <p class="text-danger fw-bold fs-7"> Password is required.</p> </div>
                     </div>
-                    <p class=" m-0 fs-7" [ngClass] = "hasUpperCase ? 'text-success' : 'text-danger'"> * Must atleast one uppercase.</p> 
-                    <p class=" m-0 fs-7" [ngClass] = "hasLowerCase ? 'text-success' : 'text-danger'"> * Must atleast one lowercase.</p> 
-                    <p class=" m-0 fs-7" [ngClass] = "hasDigit ? 'text-success' : 'text-danger'"> * Must atleast one digit.</p> 
-                    <p class=" m-0 fs-7" [ngClass] = "hasSpecialChar ? 'text-success' : 'text-danger'"> * Must atleast one special character.</p> 
-                    <p class=" m-0 fs-7" [ngClass] = "hasFiveLen ? 'text-success' : 'text-danger'"> * Must alteast has 5 characters.</p> 
+                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasUpperCase ? 'text-success' : 'text-danger'"> * Must atleast one uppercase.</p> 
+                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasLowerCase ? 'text-success' : 'text-danger'"> * Must atleast one lowercase.</p> 
+                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasDigit ? 'text-success' : 'text-danger'"> * Must atleast one digit.</p> 
+                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasSpecialChar ? 'text-success' : 'text-danger'"> * Must atleast one special character.</p> 
+                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasFiveLen ? 'text-success' : 'text-danger'"> * Must alteast has 5 characters.</p> 
                 
                     </div>
                     <div class="mb-3">
@@ -148,27 +155,44 @@
                         id="confirmPasswordInput" 
                         name="confirm_password" 
                         #confirm_password = "ngModel"
-                        (input) = 'matchPassword(password, confirm_password)'
+                        (input) = "matchPassword(password, confirm_password)"
+                        (blur) = "changeValue(confirm_password)"
                         ngModel
                         required
-                        [ngClass] = "{'is-invalid':confirm_password.touched && confirm_password.invalid}"
+                        [ngClass] = "{'is-invalid':(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty}"
                         [disabled] = !isPasswordValid
                         >
-        
+                        
+                        <div *ngIf = "confirm_password.hasError('required') || isConfirmPasswordInputEmpty">
+                            <div  *ngIf = "(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty"> <p class="text-danger fw-bold fs-7">Confirm password is required.</p> </div>
+                        </div>
                         <div *ngIf = "confirm_password.touched && !isPasswordMatch">
-                            <p class=" m-0 text-danger fs-7"> Password not matched</p> 
+                            <p class="fw-bold m-0 text-danger fs-7">Password not matched</p> 
+                        </div>
+                    </div>
+
+                    <div *ngIf="dashboardTitle; else createUserButton">
+                        <div class="d-flex justify-content-around">
+                            <div>
+                                <button type="submit" class="btn btn-primary btn-lg" [disabled] = 'register_form.invalid || !isPasswordMatch || !isPasswordValid' >Update</button>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-danger btn-lg" (click)="handleDelete()" >Delete Account</button>
+                            </div>
                         </div>
                     </div>
                     
+                    <ng-template #createUserButton>
                     <div class="d-flex justify-content-around">
                         <div>
                             <button type="submit" class="btn btn-primary btn-lg" [disabled] = 'register_form.invalid || !isPasswordMatch || !isPasswordValid' >Register</button>
                         </div>
                         <div class="text-center">
-                            <button type="button" class="btn btn-danger btn-lg" >Sign in</button>
-                            <p class="m-0 fs-7 text-info fst-italic">** If already has account</p>
+                            <button type="button" class="btn btn-danger btn-lg" (click)="signIN()">Sign in</button>
+                            <p class="m-0 fs-7 fst-italic">** If already has account</p>
                         </div>
                     </div>
+                    </ng-template>
                     </form>
             </div>
         </div>

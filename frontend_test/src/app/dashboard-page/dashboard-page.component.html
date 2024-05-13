@@ -1,0 +1,10 @@
+<app-register-page 
+[dashboardTitle]="title" 
+[dbUsername] = "username"
+[dbEmail] = "email"
+[dbFullname] = "fullname"
+[dbPhonenumber] = "phonenumber"
+(formSubmitted)="onChildFormUpdate($event)"
+(formDeleted)="onChildFormDelete()"></app-register-page>
+
+

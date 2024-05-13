@@ -1,5 +1,5 @@
 import { NgClass, NgIf } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Output, OnDestroy, Input, AfterContentChecked} from '@angular/core';
 import { Subscription } from 'rxjs';
 import { FormsModule, NgForm, NgModel} from '@angular/forms';
 import { StartsWithAlphabetDirective } from '../validators/startwithalphabet.validators';
@@ -17,7 +17,7 @@ import { WebsocketService } from '../services/websocket.service';
   templateUrl: './register-page.component.html',
   styleUrl: './register-page.component.css'
 })
-export class RegisterPageComponent implements OnDestroy {
+export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   messagesSubscription?: Subscription;
   hasUpperCase:boolean = false;
   hasLowerCase:boolean = false;
@@ -38,10 +38,43 @@ export class RegisterPageComponent implements OnDestroy {
   userEmail:string = "";
   userFullname:string = "";
   userPhoneNumber:string = "";
+  isUsernameInputEmpty:boolean = false;
+  isEmailInputEmpty:boolean = false;
+  isFullnameInputEmpty:boolean = false;
+  isPhoneNumberInputEmpty:boolean = false;
+  isPasswordInputEmpty:boolean = false;
+  isConfirmPasswordInputEmpty:boolean = false;
 
-  constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){}
+  constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){
+  }
+
+  @Input() dashboardTitle: string = "";
+  @Input() dbUsername: string = "";
+  @Input() dbEmail: string = "";
+  @Input() dbFullname: string = "";
+  @Input() dbPhonenumber: string = "";
+  @Output() formSubmitted: EventEmitter<NgForm> = new EventEmitter<NgForm>();
+  @Output() formDeleted: EventEmitter<null> = new EventEmitter<null>();
+
+
+  ngAfterContentChecked(): void {
+    this.userName = this.dbUsername
+    this.userEmail = this.dbEmail
+    this.userFullname = this.dbFullname
+    this.userPhoneNumber = this.dbPhonenumber
+  }
+  
+  handleDelete(){
+    this.formDeleted.emit();
+  }
+  
+  handleUpdate(updateForm:NgForm) {
+    // Emit an event when the form is submitted
+    this.formSubmitted.emit(updateForm);
+  }
 
   checkPasswordFormat(password:NgModel){
+
     let passwordValue = password.value as string;
 
     // check uppercase
@@ -100,71 +133,190 @@ export class RegisterPageComponent implements OnDestroy {
       this.usernameExists = this.newUser.username != input.value ? false : true
     }
 
+    if (this.isUsernameInputEmpty  && input.name === "username"){
+      this.isUsernameInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
     if (this.emailExists && input.name === "email"){
       this.emailExists = this.newUser.email != input.value ? false : true
+    }
+
+    if (this.isEmailInputEmpty && input.name === "email"){
+      this.isEmailInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
+    if (this.isFullnameInputEmpty && input.name === "fullname"){
+      this.isFullnameInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
+    if (this.isPhoneNumberInputEmpty && input.name === "phone_number"){
+      this.isPhoneNumberInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
+    if (this.isPasswordInputEmpty && input.name === "password"){
+      this.isPasswordInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
+    if (this.isConfirmPasswordInputEmpty && input.name === "confirm_password"){
+      this.isConfirmPasswordInputEmpty = input.value.trim() != "" ? false : true 
     }
   }
 
   onSubmit(register_form:NgForm) {
-    this.newUser = {
-      username : register_form.value.username,
-      password : register_form.value.password,
-      email : register_form.value.email,
-      fullname : register_form.value.fullname,
-      phone_number : register_form.value.phone_number,
+
+    if (!this.isAnyInputEmpty(register_form) 
+      // && !this.isInvalidUsername(register_form.value.username) 
+      // && !this.isInvalidEmail(register_form.value.email) 
+      // && !this.isInvalidFullname(register_form.value.fullname) 
+      // && !this.isInvalidPhonenumber(register_form.value.phone_number) 
+      // && !this.isInvalidPassword(register_form.value.password) 
+      // && !this.isMatchPassword(register_form.value.password, register_form.value.confirm_password)
+    )
+      {
+      this.newUser = {
+        username : register_form.value.username,
+        password : register_form.value.password,
+        email : register_form.value.email,
+        fullname : register_form.value.fullname,
+        phone_number : register_form.value.phone_number,
+      }
+  
+      this.userService.postRegister('register', this.newUser).subscribe({
+        next:(response:any) => {
+          if (response.status == 200){
+  
+            // Showing the loading page
+            this.showLoadingPage = true;
+  
+            // Starting connect websocket to received task status
+            this.messagesSubscription = this.websocketService.getMessages(response.body['task_id']).subscribe({
+              next: (message) => {
+  
+                let result = JSON.parse(message)
+                this.registerStatus = result.status
+                
+                if (this.registerStatus === "SUCCESS"){
+                  // this.showMessageColor = "success"
+                  // this.registerRemark = result.remark
+                  // this.showMessage = true
+  
+                  // if successfully create an account then redirect to login page
+                  this.router.navigate(['/login'])
+                }else{
+  
+                  // else show the error message and add is-invalid class to the related input
+                  this.showMessageColor = "danger"
+                  this.registerRemark = this.formatErrorMessage(result.remark)
+                  
+                  if (this.registerRemark.toLowerCase().includes("username"))
+                    this.usernameExists = true
+  
+                  if (this.registerRemark.toLowerCase().includes("email"))
+                    this.emailExists = true
+  
+                  this.showMessage = true
+                  this.autoFillInData();
+                  this.reset();
+                }
+  
+                this.showLoadingPage = false;
+              },
+              error: (error) => {
+                console.error('Error receiving message:', error)
+                this.showLoadingPage = false;
+              }
+            });
+          }
+        }
+      })
+  
+      this.ngOnDestroy()
+    }
+  }
+
+  formatErrorMessage(errorString:string):string{
+    console.log(errorString.split(":").length)
+    if (errorString.split(":").length > 1){
+      let error_list:string[] = [];
+
+      const errors = errorString.split('. ').filter(Boolean); // Split by '. ' and remove empty entries
+
+      errors.forEach(element => {
+        error_list.push(element.split(":")[1])
+      });
+
+      const formattedErrors = error_list.map(error => {
+        // Capitalize the first letter and ensure proper punctuation
+        return error.charAt(0).toUpperCase() + error.slice(1) + (error.endsWith('.') ? '' : '.');
+      });
+      return formattedErrors.join(' ');
+    }
+    return errorString
+  }
+
+  isAnyInputEmpty(register_form:NgForm):boolean{
+    if (register_form.value.username.trim() === ""){
+      this.isUsernameInputEmpty = true
     }
 
-    this.userService.postRegister('register', this.newUser).subscribe({
-      next:(response:any) => {
-        if (response.status == 200){
+    if (register_form.value.email.trim() === ""){
+      this.isEmailInputEmpty = true
+    }
 
-          // Showing the loading page
-          this.showLoadingPage = true;
+    if (register_form.value.fullname.trim() === ""){
+      this.isFullnameInputEmpty = true
+    }
 
-          // Starting connect websocket to received task status
-          this.messagesSubscription = this.websocketService.getMessages(response.body['task_id']).subscribe({
-            next: (message) => {
+    if (register_form.value.phone_number.trim() === ""){
+      this.isPhoneNumberInputEmpty = true
+    }
 
-              let result = JSON.parse(message)
-              this.registerStatus = result.status
-              
-              if (this.registerStatus === "SUCCESS"){
-                // this.showMessageColor = "success"
-                // this.registerRemark = result.remark
-                // this.showMessage = true
+    if (register_form.value.password.trim() === ""){
+      this.isPasswordInputEmpty = true
+    }
 
-                // if successfully create an account then redirect to login page
-                this.router.navigate(['/login'])
-              }else{
+    if (register_form.value.confirm_password === undefined || register_form.value.confirm_password.trim() === ""){
+      this.isConfirmPasswordInputEmpty = true
+    }
 
-                // else show the error message and add is-invalid class to the related input
-                this.showMessageColor = "danger"
-                this.registerRemark = result.remark
-                
-                if (this.registerRemark.toLowerCase().includes("username"))
-                  this.usernameExists = true
+    if (
+      this.isUsernameInputEmpty ||
+      this.isEmailInputEmpty ||
+      this.isFullnameInputEmpty ||
+      this.isPhoneNumberInputEmpty ||
+      this.isPasswordInputEmpty ||
+      this.isConfirmPasswordInputEmpty
+    ){
+      return true
+    }
 
-                if (this.registerRemark.toLowerCase().includes("email"))
-                  this.emailExists = true
-
-                this.showMessage = true
-                this.autoFillInData();
-                this.reset();
-              }
-
-              this.showLoadingPage = false;
-            },
-            error: (error) => {
-              console.error('Error receiving message:', error)
-              this.showLoadingPage = false;
-            }
-          });
-        }
-      }
-    })
-
-    this.ngOnDestroy()
+    return false
   }
+
+  // isInvalidUsername(username:string):boolean{
+  //   return false
+  // }
+  
+  // isInvalidEmail(email:string):boolean{
+  //   return false
+  // }
+
+  // isInvalidFullname(fullname:string):boolean{
+  //   return false
+  // }
+
+  // isInvalidPhonenumber(phone_number:string):boolean{
+  //   return false
+  // }
+
+  // isInvalidPassword(password:string):boolean{
+  //   return false
+  // }
+
+  // isMatchPassword(password:string, c_password:string):boolean{
+  //   return false
+  // }
+
 
   // Once the form disappear, everything will gone,
   // then this function will auto fillin again part of input value, based on what user previous submitted
@@ -184,6 +336,10 @@ export class RegisterPageComponent implements OnDestroy {
     this.hasFiveLen = false;
     this.isPasswordMatch = false;
     this.isPasswordValid = false;
+  }
+
+  signIN(){
+    this.router.navigate(['/login'])
   }
 
   ngOnDestroy() {

@@ -1,9 +1,9 @@
 .fs-7{
-    font-size: small;
+    font-size: smaller;
 }
 
 form{
-    background-color: lightgray;
+    background-color: #5C5470;
 }
 
 .loader {

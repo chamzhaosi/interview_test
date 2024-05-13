@@ -16,7 +16,7 @@ export class UsersService {
     return this.http.post(fullUrl, user, { withCredentials: true, observe: 'response' })
   }
 
-  getAutheToken(path: string) {
+  getUserData(path: string) {
     let fullUrl: string = env.http.apiUrl + path + "/";
     return this.http.get(fullUrl, { withCredentials: true, observe: 'response' })
   }

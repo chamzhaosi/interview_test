@@ -18,12 +18,13 @@ def register(request):
     return Response({"Message": "User creation in progress.", "task_id":task.id}) 
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def login(request):
-    response = Response()
     
-    username = request.data.get('username', default=None)
-    password = request.data.get('password', default=None)
+    response = Response()
+
+    username = request.data.get('username')
+    password = request.data.get('password')
     
     try:
         client = ClientsAccount.objects.get(username=username)
@@ -56,7 +57,6 @@ def login(request):
        
     # if the user not found     
     except Exception as ex:
-        print(ex)
         response.data = {"error": "Account Not Exist!"}
         response.status_code = 404
         
