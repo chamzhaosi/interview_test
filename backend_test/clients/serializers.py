@@ -25,7 +25,7 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
 
         # name
         if len(data['fullname']) < 5 or re.findall('[0-9]', data['fullname']):
-            raise serializers.ValidationError({"fullname":"Name must more than 5 characters and cannot contain any digit."})
+            raise serializers.ValidationError({"fullname":"Fullname must more than 5 characters and cannot contain any digit."})
 
         # phone number
         phone_number = PhoneNumberField()

@@ -58,11 +58,11 @@ export class WebsocketService {
     };
 
     this.websocket.onerror = (event) => {
-      console.error('WebSocket error:', event);
+      // console.error('WebSocket error:', event);
     };
 
     this.websocket.onclose = (event) => {
-      console.log('WebSocket connection closed:', event);
+      // console.log('WebSocket connection closed:', event);
     };
   }
 

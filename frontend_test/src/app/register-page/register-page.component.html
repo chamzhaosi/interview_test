@@ -14,7 +14,6 @@
                     <div class="row">
                         <div class="mb-3 col-sm-6 col-12">
                             <label for="usernameInput" class="form-label">Username</label>
-                            
                             <input type="text" 
                             class="form-control" 
                             id="usernameInput" 
@@ -24,9 +23,10 @@
                             noSpaceInclude
                             startsWithAlphabet
                             #username ='ngModel' 
-                            
+                            [(ngModel)] = "userName"
                             required
-                            [ngClass] = "{'is-invalid':username.touched && username.invalid}"
+                            [ngClass] = "{'is-invalid': (username.touched && username.invalid) || usernameExists }"
+                            (change) ="changeValue(username)"
                             minlength="5"
                             maxlength="10"
                             >
@@ -53,8 +53,10 @@
                             aria-describedby="emailHelp" 
                             name="email" 
                             ngModel
+                            [(ngModel)] = "userEmail"
                             #email= 'ngModel'
-                            [ngClass] = "{'is-invalid':email.touched && email.invalid}"
+                            (change) ="changeValue(email)"
+                            [ngClass] = "{'is-invalid': (email.touched && email.invalid) || emailExists}"
                             pattern='[a-z0-9._%+\\-]+@[a-z0-9.-]+\.[a-z]{2,4}$'
                             required
                             >
@@ -78,6 +80,7 @@
                             name="fullname" 
                             noNumberInclude
                             ngModel 
+                            [(ngModel)] = "userFullname"
                             #fullname="ngModel" 
                             [ngClass] = "{'is-invalid':fullname.touched && fullname.invalid}"
                             required>
@@ -99,6 +102,7 @@
                             name="phone_number" 
                             ngModel
                             #phone_number = "ngModel"
+                            [(ngModel)] = "userPhoneNumber"
                             pattern="^\+60\d{9,10}$"
                             [ngClass] = "{'is-invalid':phone_number.touched && phone_number.invalid}"
                             required

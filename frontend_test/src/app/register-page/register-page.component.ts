@@ -31,6 +31,13 @@ export class RegisterPageComponent implements OnDestroy {
   showMessage:boolean = false;
   showMessageColor!:string;
   showLoadingPage:boolean = false;
+  usernameExists:boolean = false;
+  emailExists:boolean = false;
+  newUser!:User;
+  userName:string = "";
+  userEmail:string = "";
+  userFullname:string = "";
+  userPhoneNumber:string = "";
 
   constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){}
 
@@ -80,45 +87,69 @@ export class RegisterPageComponent implements OnDestroy {
 
   }
 
+  // match will the password
   matchPassword(password:NgModel, c_password:NgModel){
     this.isPasswordMatch = password.value === c_password.value;
   }
   
-  // getValue(value:NgModel){
-  //   console.log(value.value)
-  // }
 
-  i = 0;
+  // when user get warning about username or email is existing, then is-invalid class will be added to the input
+  // only when user type anther username or email then the is-invalid class just will be removed
+  changeValue(input:NgModel){
+    if (this.usernameExists && input.name === "username"){
+      this.usernameExists = this.newUser.username != input.value ? false : true
+    }
+
+    if (this.emailExists && input.name === "email"){
+      this.emailExists = this.newUser.email != input.value ? false : true
+    }
+  }
+
   onSubmit(register_form:NgForm) {
-    let newUser : User = {
+    this.newUser = {
       username : register_form.value.username,
       password : register_form.value.password,
       email : register_form.value.email,
       fullname : register_form.value.fullname,
       phone_number : register_form.value.phone_number,
     }
-    
-    this.userService.postRegister('register', newUser).subscribe({
+
+    this.userService.postRegister('register', this.newUser).subscribe({
       next:(response:any) => {
         if (response.status == 200){
 
+          // Showing the loading page
           this.showLoadingPage = true;
 
+          // Starting connect websocket to received task status
           this.messagesSubscription = this.websocketService.getMessages(response.body['task_id']).subscribe({
             next: (message) => {
+
               let result = JSON.parse(message)
               this.registerStatus = result.status
               
               if (this.registerStatus === "SUCCESS"){
-                this.showMessageColor = "success"
-                this.registerRemark = result.remark
-                this.showMessage = true
+                // this.showMessageColor = "success"
+                // this.registerRemark = result.remark
+                // this.showMessage = true
 
+                // if successfully create an account then redirect to login page
                 this.router.navigate(['/login'])
               }else{
+
+                // else show the error message and add is-invalid class to the related input
                 this.showMessageColor = "danger"
-                this.registerRemark = this.formatErrorMessage(result.remark)
+                this.registerRemark = result.remark
+                
+                if (this.registerRemark.toLowerCase().includes("username"))
+                  this.usernameExists = true
+
+                if (this.registerRemark.toLowerCase().includes("email"))
+                  this.emailExists = true
+
                 this.showMessage = true
+                this.autoFillInData();
+                this.reset();
               }
 
               this.showLoadingPage = false;
@@ -135,13 +166,24 @@ export class RegisterPageComponent implements OnDestroy {
     this.ngOnDestroy()
   }
 
-  formatErrorMessage(errorString:string):string{
-    const errors = errorString.split('. ').filter(Boolean); // Split by '. ' and remove empty entries
-    const formattedErrors = errors.map(error => {
-      // Capitalize the first letter and ensure proper punctuation
-      return error.charAt(0).toUpperCase() + error.slice(1) + (error.endsWith('.') ? '' : '.');
-    });
-    return formattedErrors.join('\n');
+  // Once the form disappear, everything will gone,
+  // then this function will auto fillin again part of input value, based on what user previous submitted
+  autoFillInData(){
+    this.userName = this.newUser.username;
+    this.userEmail = this.newUser.email;
+    this.userFullname = this.newUser.fullname;
+    this.userPhoneNumber = this.newUser.phone_number;
+  }
+
+  // let the password checking red again
+  reset(){
+    this.hasUpperCase = false;
+    this.hasLowerCase = false;
+    this.hasDigit = false;
+    this.hasSpecialChar = false;
+    this.hasFiveLen = false;
+    this.isPasswordMatch = false;
+    this.isPasswordValid = false;
   }
 
   ngOnDestroy() {
