@@ -145,6 +145,7 @@ npm init @angular frontend_test --no-standalone
 # ng new --no-standalone
 
 npm install bootstrap
+npm install ngx-pagination
 
 ###############################################################################
 ### run server with ssl key and cert

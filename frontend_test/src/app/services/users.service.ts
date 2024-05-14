@@ -21,6 +21,11 @@ export class UsersService {
     return this.http.get(fullUrl, { withCredentials: true, observe: 'response' })
   }
 
+  getAllUserData(path: string, page: number, limit: number){
+    let fullUrl: string = env.http.apiUrl + path + `/?page=${page}&limit=${limit}`;
+    return this.http.get(fullUrl, { withCredentials: true, observe: 'response' })
+  }
+
   updateUserData(path:string, user:User){  
     let fullUrl: string = env.http.apiUrl + path + "/";
     // three parameter will get HTTPResponse data type, and only this kind of data type can update cookies

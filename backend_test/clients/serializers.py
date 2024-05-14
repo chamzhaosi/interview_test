@@ -67,7 +67,6 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
         return instance
         
     def create(self, validated_data):
-        print(validated_data['password'])
         user = ClientsAccount.objects.create(
             username=validated_data['username'],
             fullname=validated_data['fullname'],

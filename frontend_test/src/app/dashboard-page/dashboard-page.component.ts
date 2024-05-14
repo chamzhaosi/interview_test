@@ -1,19 +1,22 @@
-import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { UsersService } from '../services/users.service';
 import { User } from '../interfaces/user';
 import { RegisterPageComponent } from '../register-page/register-page.component';
-import { FormsModule, NgForm, NgModel } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
-import { NgClass, NgIf } from '@angular/common';
+import { NgClass, NgFor, NgIf } from '@angular/common';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [RegisterPageComponent, NgIf, NgClass, FormsModule],
+  imports: [RegisterPageComponent, NgIf, NgClass, FormsModule, NgxPaginationModule, NgFor],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css'
 })
 export class DashboardPageComponent implements OnInit {
+
+  isAdminView:boolean = false
 
   title:string = "Update your data"
   updateBG:string = "#503C3C"
@@ -29,24 +32,53 @@ export class DashboardPageComponent implements OnInit {
   user!:User;
   uptUser!:User;
 
+  users: any[] = [];
+  total = 0;
+  page = 1;
+  limit = 10;
+
   constructor(private userService:UsersService, private router:Router){}
+
   @ViewChild('myModal') myModal!:ElementRef;
   @ViewChild('closeBtnModal') closeBtnModal!:ElementRef;
 
   ngOnInit(): void {
     this.userService.getUserData('dashboard').subscribe({
       next:(response:any) => {
+        if (!response.body["count"]){
+          this.username = response.body["client_info"]['username']
+          this.email = response.body["client_info"]['email']
+          this.fullname = response.body["client_info"]['name']
+          this.phonenumber = response.body["client_info"]['phone_number']
+        }else{
+          this.isAdminView = true
+           
+          console.log(response.body)
+          this.users = response.body.results;
+          this.total = response.body.count;
 
-        this.username = response.body["client_info"]['username']
-        this.email = response.body["client_info"]['email']
-        this.fullname = response.body["client_info"]['name']
-        this.phonenumber = response.body["client_info"]['phone_number']
+          console.log(this.users)
+        }
       },
 
       error:(error)=>{
         this.router.navigate(['/login'])
       }
     })
+  }
+
+  getUsers(page: number, limit: number): void {
+    this.userService.getAllUserData("dashboard", page, limit).subscribe({
+      next:(response:any)=>{
+        console.log(response.body)
+        this.users = response.results;
+        this.total = response.count;
+      }
+    });
+  }
+
+  onPageChange(page: any): void {
+    this.getUsers(page, this.limit);
   }
 
   onChildFormUpdate(updateForm:NgForm) {

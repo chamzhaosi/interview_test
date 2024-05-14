@@ -1,5 +1,7 @@
 
-<app-register-page 
+  
+<ng-template #updateForm>
+  <app-register-page 
 [dashboardTitle]="title" 
 [dbUsername] = "username"
 [dbEmail] = "email"
@@ -49,4 +51,24 @@
       </div>
     </div>
   </div>
+</ng-template>
 
+<div *ngIf="isAdminView; else updateForm">
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Email</th>
+          <th>Full Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.fullname }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <pagination-controls (pageChange)="onPageChange($event)" previousLabel="Previous" nextLabel="Next"></pagination-controls>
+</div>
