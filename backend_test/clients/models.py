@@ -1,5 +1,5 @@
 from django.db import models
-from phonenumber_field.modelfields import PhoneNumberField
+# from phonenumber_field.modelfields import PhoneNumberField ## only can check +60<9 digits>, for +60<10 digits> will wrong
 from django.utils.timezone import now
 
 # Create your models here.
@@ -8,7 +8,7 @@ class ClientsAccount(models.Model):
     password = models.CharField(max_length=255, blank=False, null=False)
     fullname = models.CharField(max_length=50, blank=False, null=False)
     email = models.EmailField(max_length=50, blank=False, null=False, unique=True)
-    phone_number = PhoneNumberField(max_length=50, blank=False, null=False)
+    phone_number = models.CharField(max_length=20, blank=False, null=False) 
     active = models.BooleanField(blank=False, null=False, default=True)
     role = models.CharField(max_length=10, blank=False, null=False, default="USER")
     update_on = models.DateTimeField(auto_now=True)

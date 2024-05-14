@@ -2,7 +2,7 @@ import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { UsersService } from '../services/users.service';
 import { User } from '../interfaces/user';
 import { RegisterPageComponent } from '../register-page/register-page.component';
-import { FormsModule, NgForm } from '@angular/forms';
+import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgClass, NgIf } from '@angular/common';
 
@@ -17,16 +17,21 @@ export class DashboardPageComponent implements OnInit {
 
   title:string = "Update your data"
   updateBG:string = "#503C3C"
-  
+  updateMessage:string = "";
+  updateStatus:string = "";
   showDoubleConfirmModel:boolean = true;
   username!:string;
   email!:string;
   fullname!:string;
   phonenumber!:string;
-  user!:User
-  
+  current_password_input!:string;
+  deleteBtnPress!:boolean;
+  user!:User;
+  uptUser!:User;
+
   constructor(private userService:UsersService, private router:Router){}
   @ViewChild('myModal') myModal!:ElementRef;
+  @ViewChild('closeBtnModal') closeBtnModal!:ElementRef;
 
   ngOnInit(): void {
     this.userService.getUserData('dashboard').subscribe({
@@ -45,24 +50,83 @@ export class DashboardPageComponent implements OnInit {
   }
 
   onChildFormUpdate(updateForm:NgForm) {
-    console.log(updateForm.value);
-    this.myModal.nativeElement.click();;
+    this.deleteBtnPress = false;
+    this.uptUser = {
+      username: updateForm.value.username,
+      fullname: updateForm.value.fullname,
+      email: updateForm.value.email,
+      phone_number: updateForm.value.phone_number,
+    }
+
+    if (updateForm.value.changsPasswordCheck){
+      this.uptUser.password = updateForm.value.password
+    }
+
+    this.myModal.nativeElement.click();
   }
 
   onChildFormDelete() {
-    console.log("User Want to delete");
+    this.deleteBtnPress = true;
     this.myModal.nativeElement.click();
   }
 
   onLogout(){
     this.userService.postLogout('logout').subscribe({
-      next:(reponses)=>{
+      next:()=>{
         this.router.navigate(['/login'])
       }
     })
   }
 
-  onSubmit(updateForm:NgForm){
-    console.log(updateForm.value)
+  onSubmit(identifyForm:NgForm){
+    if (!this.deleteBtnPress){
+      this.uptUser.current_password = identifyForm.value.current_password
+
+      this.userService.updateUserData("update_client", this.uptUser).subscribe({
+        next:() => {
+          this.updateMessage = "Update successfully!"
+          this.updateStatus = "success"
+          this.closeBtnModal.nativeElement.click();
+          identifyForm.reset();
+        },
+        error:(error)=>{
+          this.updateMessage = ""
+          Object.keys(error.error).forEach(key => {
+            this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
+          });
+          this.updateStatus = "danger"
+          this.closeBtnModal.nativeElement.click();
+          identifyForm.reset();
+        }
+      })
+    }else{
+      this.uptUser = {
+        current_password : identifyForm.value.current_password,
+        active : false,
+      }
+      
+      this.userService.updateUserData("update_client", this.uptUser).subscribe({
+        next:() => {
+          this.updateMessage = "Account deleted successfully!"
+          this.updateStatus = "success"
+          this.closeBtnModal.nativeElement.click();
+          identifyForm.reset();
+          this.router.navigate(['/login'])
+        },
+        error:(error)=>{
+          this.updateMessage = ""
+          Object.keys(error.error).forEach(key => {
+            this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
+          });
+          this.updateStatus = "danger"
+          this.closeBtnModal.nativeElement.click();
+          identifyForm.reset();
+        }
+      })
+    }
+  }
+
+  delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }

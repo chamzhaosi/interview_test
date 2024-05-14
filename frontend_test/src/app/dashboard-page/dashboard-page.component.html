@@ -1,3 +1,4 @@
+
 <app-register-page 
 [dashboardTitle]="title" 
 [dbUsername] = "username"
@@ -5,13 +6,14 @@
 [dbFullname] = "fullname"
 [dbPhonenumber] = "phonenumber"
 [bgColor]="updateBG"
+[updateMessage]="updateMessage"
+[updateStatus]="updateStatus"
 (formSubmitted)="onChildFormUpdate($event)"
 (formDeleted)="onChildFormDelete()"
 (btnLogout)="onLogout()">
 </app-register-page>
 
 <button #myModal [hidden]="true" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Launch demo modal
   </button>
   
   <!-- Modal -->
@@ -20,17 +22,18 @@
       <div class="modal-content">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="exampleModalLabel">Identity Check</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button #closeBtnModal type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
             <form #identity_form = 'ngForm' (ngSubmit) = onSubmit(identity_form)>
                 <div class="mb-3">
                   <label for="exampleInputPassword1" class="form-label">Current Password</label>
-                  <input type="current_password" 
+                  <input type="password" 
                   class="form-control" 
                   id="exampleInputPassword1"
                   name="current_password"
                   ngModel
+                  [(ngModel)] = "current_password_input"
                   #current_password ='ngModel' 
                   [ngClass] = "{'is-invalid': current_password.touched && current_password.invalid}"
                   required

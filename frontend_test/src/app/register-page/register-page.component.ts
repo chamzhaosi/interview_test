@@ -51,6 +51,8 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
 
   @Input() bgColor: string = "#5C5470"
   @Input() dashboardTitle: string = "";
+  @Input() updateMessage: string = "";
+  @Input() updateStatus: string = "";
   @Input() dbUsername: string = "";
   @Input() dbEmail: string = "";
   @Input() dbFullname: string = "";
@@ -66,15 +68,18 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
     this.userPhoneNumber = this.dbPhonenumber
   }
   
+  // let dashboard handle the submission
   handleDelete(){
     this.formDeleted.emit();
   }
   
+    // let dashboard handle the submission
   handleUpdate(updateForm:NgForm) {
     // Emit an event when the form is submitted
     this.formSubmitted.emit(updateForm);
   }
 
+    // let dashboard handle the submission
   handleLogout(){
     this.btnLogout.emit()
   }
@@ -210,7 +215,8 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
                   // this.showMessageColor = "success"
                   // this.registerRemark = result.remark
                   // this.showMessage = true
-  
+
+                  this.ngOnDestroy()
                   // if successfully create an account then redirect to login page
                   this.router.navigate(['/login'])
                 }else{

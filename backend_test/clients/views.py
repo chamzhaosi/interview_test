@@ -3,9 +3,10 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import make_password
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-from .serializers import ClientRegistrationSerializer, ClientProfileSerializer, ClientDeactivedSerializer
+from .serializers import ClientRegistrationSerializer, ClientProfileSerializer, ClientDeactivedSerializer, ClientBasicDataSerializer
 from .models import ClientsAccount
 from .tasks import create_user_task
 import json, datetime, jwt
@@ -97,6 +98,7 @@ def read_dashboard_data(request):
                 serializer = ClientProfileSerializer(result_page, many=True)
                 return paginator.get_paginated_response(serializer.data)
         else:
+            response.delete_cookie('jwt')
             response.data = {"error": "User account is not available!"}
             response.status_code = 401
 
@@ -112,7 +114,7 @@ def read_dashboard_data(request):
 
 
 @api_view(['PUT'])
-def update_user_detail(request):
+def update_own_detail(request):
     response = Response()
 
     try:
@@ -121,13 +123,32 @@ def update_user_detail(request):
         client = ClientsAccount.objects.get(id=payload["id"])
 
         if client.active:
-            serializer = ClientRegistrationSerializer(client, data=request.data)
-            serializer.is_valid(raise_exception=True)
+            # check whether current password correct or not
+            if check_password(request.data["current_password"], client.password):
+                
+                # which mean user want to change password as well
+                if "password" in request.data:
+                    serializer = ClientRegistrationSerializer(client, data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                
+                # which mean user only want update their basic datial only  
+                elif "username" in request.data:
+                    serializer = ClientBasicDataSerializer(client, data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                    
+                else: 
+                    serializer = ClientDeactivedSerializer(client, data=request.data)
+                    serializer.is_valid(raise_exception=True)
+                
             
-            # update existing data
-            serializer.save()
-            response.data = {"success": "User account has been updated"}
-            response.status_code = 200     
+                # update existing data
+                serializer.save()
+                response.data = {"success": "User account has been updated"}
+                response.status_code = 200     
+            
+            else:
+                response.data = {"error": "Incorrect current password!"}
+                response.status_code = 401
             
         else:
             response.data = {"error": "User account is not available!"}

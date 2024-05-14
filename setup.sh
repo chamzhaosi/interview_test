@@ -26,6 +26,7 @@ su -
 pip install django --break-system-packages
 pip install djangorestframework --break-system-packages
 pip install django-phonenumber-field[phonenumbers] --break-system-packages
+pip install phonenumbers --break-system-packages
 
 # To solve the problem of mysqlclient installation
 # Refer: https://stackoverflow.com/questions/76585758/mysqlclient-cannot-install-via-pip-cannot-find-pkg-config-name-in-ubuntu

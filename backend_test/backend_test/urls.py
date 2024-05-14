@@ -23,7 +23,7 @@ urlpatterns = [
     path('api/register/', clients_views.register),
     path('api/login/', clients_views.login),
     path('api/dashboard/', clients_views.read_dashboard_data),
-    path('api/update_clients/', clients_views.update_user_detail),
-    path('api/update_clients/<int:id>', clients_views.update_user_detail),
+    path('api/update_client/', clients_views.update_own_detail),
+    path('api/update_clients/<int:id>/', clients_views.update_user_detail),
     path('api/logout/', clients_views.logout),
 ]

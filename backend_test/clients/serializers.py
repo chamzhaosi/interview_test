@@ -21,15 +21,21 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"username":"Username must be more than 5 characters long and start with a letter, without any spaces."})
 
         # password
-        self.isInvalidPassword(data['password'])
+        # create 
+        if (not self.instance and 'password' in data) or (self.instance and 'password' in data):
+            self.isInvalidPassword(data['password'])
 
         # name
         if len(data['fullname']) < 5 or re.findall('[0-9]', data['fullname']):
             raise serializers.ValidationError({"fullname":"Fullname must more than 5 characters and cannot contain any digit."})
 
         # phone number
-        phone_number = PhoneNumberField()
-        
+        # phone_number = PhoneNumberField() ## only can check +60<9 digits>, for +60<10 digits> will wrong
+        if "phone_number" in data:
+            pattern = re.compile(r"\+601[0-9]{8,9}$")
+            if not bool(pattern.match(data['phone_number'])):
+                raise serializers.ValidationError({"phone number":"Phone number must start with +60 followed by 9 to 10 digits only."})
+            
         # role
         if "role" in data and data['role'].upper() != "USER" and data['role'].upper() != "ADMIN":
             raise serializers.ValidationError({"role":"Only USER or ADMIN can be setted."})
@@ -46,8 +52,22 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
         if not re.findall('[^A-Za-z0-9]', password):  # Checks for special characters
             raise serializers.ValidationError({"password":"The password must contain at least one special character."})
     
-    def create(self, validated_data):
+    def update(self, instance, validated_data):
+        if "password" in validated_data:
+            password = validated_data.pop('password')
+            instance.password = make_password(password)
+            
+        # Update other fields as usual
+        instance.username = validated_data.get('username', instance.username)
+        instance.fullname = validated_data.get('fullname', instance.fullname)
+        instance.email = validated_data.get('email', instance.email)
+        instance.phone_number = validated_data.get('phone_number', instance.phone_number)
+            
+        instance.save()
+        return instance
         
+    def create(self, validated_data):
+        print(validated_data['password'])
         user = ClientsAccount.objects.create(
             username=validated_data['username'],
             fullname=validated_data['fullname'],
@@ -57,6 +77,12 @@ class ClientRegistrationSerializer(serializers.ModelSerializer):
         )
         user.save()
         return user
+    
+# Ipdate client basic data
+class ClientBasicDataSerializer(ClientRegistrationSerializer, serializers.ModelSerializer):
+    class Meta:
+        model = ClientsAccount
+        fields = ['username', 'fullname', 'email', 'phone_number']
 
 # Serializer for displaying user profile information
 class ClientProfileSerializer(serializers.ModelSerializer):

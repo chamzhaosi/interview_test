@@ -63,6 +63,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://test.chamzhaosi.com:4200",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://test.chamzhaosi.com:4200',
+]
+
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
