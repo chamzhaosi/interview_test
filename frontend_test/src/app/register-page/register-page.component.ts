@@ -44,6 +44,7 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   isPhoneNumberInputEmpty:boolean = false;
   isPasswordInputEmpty:boolean = false;
   isConfirmPasswordInputEmpty:boolean = false;
+  isShowPasswordInput:boolean = true;
 
   constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){
   }
@@ -159,6 +160,11 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
 
     if (this.isConfirmPasswordInputEmpty && input.name === "confirm_password"){
       this.isConfirmPasswordInputEmpty = input.value.trim() != "" ? false : true 
+    }
+
+    if (input.name === "changsPasswordCheck"){
+      this.isShowPasswordInput = !input.value;
+      this.reset() // password checking
     }
   }
 

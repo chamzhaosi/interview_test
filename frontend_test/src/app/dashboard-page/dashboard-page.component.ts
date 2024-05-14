@@ -3,6 +3,7 @@ import { UsersService } from '../services/users.service';
 import { User } from '../interfaces/user';
 import { RegisterPageComponent } from '../register-page/register-page.component';
 import { NgForm } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -14,13 +15,15 @@ import { NgForm } from '@angular/forms';
 export class DashboardPageComponent implements OnInit {
 
   title:string = "Update your data"
+  
+
   username!:string;
   email!:string;
   fullname!:string;
   phonenumber!:string;
   user!:User
   
-  constructor(private userService:UsersService){}
+  constructor(private userService:UsersService, private router:Router){}
   
   ngOnInit(): void {
     this.userService.getUserData('dashboard').subscribe({
@@ -30,6 +33,10 @@ export class DashboardPageComponent implements OnInit {
         this.email = response.body["client_info"]['email']
         this.fullname = response.body["client_info"]['name']
         this.phonenumber = response.body["client_info"]['phone_number']
+      },
+
+      error:(error)=>{
+        this.router.navigate(['/login'])
       }
     })
   }

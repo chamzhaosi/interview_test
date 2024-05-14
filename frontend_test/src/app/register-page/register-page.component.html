@@ -124,57 +124,74 @@
             
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="passwordInput" class="form-label">Password</label>
-                        <input type="password" 
-                        class="form-control" 
-                        id="passwordInput" 
-                        name="password" 
-                        ngModel 
-                        #password = "ngModel"
-                        (blur) = "changeValue(password)"
-                        (input) = 'checkPasswordFormat(password)'
-                        [ngClass] = "{'is-invalid':(password.touched && password.invalid) || isPasswordInputEmpty}"
-                        required
-                        >
-        
-                    <div *ngIf = "password.hasError('required') || isPasswordInputEmpty">
-                        <div  *ngIf = "(password.touched && password.invalid) || isPasswordInputEmpty"> <p class="text-danger fw-bold fs-7"> Password is required.</p> </div>
+
+                    <div *ngIf="dashboardTitle"> 
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" 
+                            class="form-check-input" 
+                            id="changsPasswordCheck"
+                            name="changsPasswordCheck"
+                            ngModel
+                            #changsPassword = "ngModel"
+                            (change)="changeValue(changsPassword)"
+                            >
+                            <label class="form-check-label" for="exampleCheck1">Not Change Password</label>
+                          </div>
                     </div>
-                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasUpperCase ? 'text-success' : 'text-danger'"> * Must atleast one uppercase.</p> 
-                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasLowerCase ? 'text-success' : 'text-danger'"> * Must atleast one lowercase.</p> 
-                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasDigit ? 'text-success' : 'text-danger'"> * Must atleast one digit.</p> 
-                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasSpecialChar ? 'text-success' : 'text-danger'"> * Must atleast one special character.</p> 
-                    <p class="fw-bold m-0 fs-7" [ngClass] = "hasFiveLen ? 'text-success' : 'text-danger'"> * Must alteast has 5 characters.</p> 
-                
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmPasswordInput" class="form-label">Confirm Password</label>
-                        <input type="password" 
-                        class="form-control" 
-                        id="confirmPasswordInput" 
-                        name="confirm_password" 
-                        #confirm_password = "ngModel"
-                        (input) = "matchPassword(password, confirm_password)"
-                        (blur) = "changeValue(confirm_password)"
-                        ngModel
-                        required
-                        [ngClass] = "{'is-invalid':(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty}"
-                        [disabled] = !isPasswordValid
-                        >
-                        
-                        <div *ngIf = "confirm_password.hasError('required') || isConfirmPasswordInputEmpty">
-                            <div  *ngIf = "(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty"> <p class="text-danger fw-bold fs-7">Confirm password is required.</p> </div>
+
+                    <div *ngIf="isShowPasswordInput">
+                        <div class="mb-3">
+                            <label for="passwordInput" class="form-label">Password</label>
+                            <input type="password" 
+                            class="form-control" 
+                            id="passwordInput" 
+                            name="password" 
+                            ngModel 
+                            #password = "ngModel"
+                            (blur) = "changeValue(password)"
+                            (input) = 'checkPasswordFormat(password)'
+                            [ngClass] = "{'is-invalid':(password.touched && password.invalid) || isPasswordInputEmpty}"
+                            [disabled] = "!isShowPasswordInput"
+                            required
+                            >
+                        <div *ngIf = "password.hasError('required') || isPasswordInputEmpty">
+                            <div  *ngIf = "(password.touched && password.invalid) || isPasswordInputEmpty"> <p class="text-danger fw-bold fs-7"> Password is required.</p> </div>
                         </div>
-                        <div *ngIf = "confirm_password.touched && !isPasswordMatch">
-                            <p class="fw-bold m-0 text-danger fs-7">Password not matched</p> 
+                        <p class="fw-bold m-0 fs-7" [ngClass] = "hasUpperCase ? 'text-success' : 'text-danger'"> * Must atleast one uppercase.</p> 
+                        <p class="fw-bold m-0 fs-7" [ngClass] = "hasLowerCase ? 'text-success' : 'text-danger'"> * Must atleast one lowercase.</p> 
+                        <p class="fw-bold m-0 fs-7" [ngClass] = "hasDigit ? 'text-success' : 'text-danger'"> * Must atleast one digit.</p> 
+                        <p class="fw-bold m-0 fs-7" [ngClass] = "hasSpecialChar ? 'text-success' : 'text-danger'"> * Must atleast one special character.</p> 
+                        <p class="fw-bold m-0 fs-7" [ngClass] = "hasFiveLen ? 'text-success' : 'text-danger'"> * Must alteast has 5 characters.</p> 
+                    
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPasswordInput" class="form-label">Confirm Password</label>
+                            <input type="password" 
+                            class="form-control" 
+                            id="confirmPasswordInput" 
+                            name="confirm_password" 
+                            #confirm_password = "ngModel"
+                            (input) = "matchPassword(password, confirm_password)"
+                            (blur) = "changeValue(confirm_password)"
+                            ngModel
+                            required
+                            [ngClass] = "{'is-invalid':(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty}"
+                            [disabled] = !isPasswordValid
+                            >
+                            
+                            <div *ngIf = "confirm_password.hasError('required') || isConfirmPasswordInputEmpty">
+                                <div  *ngIf = "(confirm_password.touched && confirm_password.invalid) || isConfirmPasswordInputEmpty"> <p class="text-danger fw-bold fs-7">Confirm password is required.</p> </div>
+                            </div>
+                            <div *ngIf = "confirm_password.touched && !isPasswordMatch">
+                                <p class="fw-bold m-0 text-danger fs-7">Password not matched</p> 
+                            </div>
                         </div>
                     </div>
 
                     <div *ngIf="dashboardTitle; else createUserButton">
                         <div class="d-flex justify-content-around">
                             <div>
-                                <button type="submit" class="btn btn-primary btn-lg" [disabled] = 'register_form.invalid || !isPasswordMatch || !isPasswordValid' >Update</button>
+                                <button type="submit" class="btn btn-primary btn-lg" [disabled] = 'register_form.invalid || (isShowPasswordInput && (!isPasswordMatch || !isPasswordValid))'>Update</button>
                             </div>
                             <div>
                                 <button type="submit" class="btn btn-danger btn-lg" (click)="handleDelete()" >Delete Account</button>
