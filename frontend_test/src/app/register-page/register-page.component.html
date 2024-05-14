@@ -4,14 +4,18 @@
             <div class="loader m-auto"></div>
         </div>
         <div *ngIf="!showLoadingPage" class="col-lg-6 col-12 text-light">
-            <h3 *ngIf="dashboardTitle; else createUserTitle" class="my-4 text-dark">{{ dashboardTitle }}</h3>
+            <div *ngIf="dashboardTitle; else createUserTitle" class="my-4 text-dark d-flex justify-content-between">
+                <h3>{{ dashboardTitle }}</h3>
+                <button type="submit" class="btn btn-danger" (click)="handleLogout()" >Logout</button>
+            </div>
+
             <ng-template #createUserTitle><h3 class="my-4 text-dark">Create an account</h3></ng-template>
 
             <div *ngIf = "showMessage">
                 <div class="alert alert-{{showMessageColor}}">{{registerRemark}}</div>
             </div>
             <div class="form-area mb-4">
-                <form class="rounded p-3" #register_form = 'ngForm' (ngSubmit) = "dashboardTitle ? handleUpdate(register_form) : onSubmit(register_form)">
+                <form [style.background-color]="bgColor" class="rounded p-3" #register_form = 'ngForm' (ngSubmit) = "dashboardTitle ? handleUpdate(register_form) : onSubmit(register_form)">
                     <div class="row">
                         <div class="mb-3 col-sm-6 col-12">
                             <label for="usernameInput" class="form-label">Username</label>
@@ -134,8 +138,9 @@
                             ngModel
                             #changsPassword = "ngModel"
                             (change)="changeValue(changsPassword)"
+                            [(ngModel)]="isShowPasswordInput"
                             >
-                            <label class="form-check-label" for="exampleCheck1">Not Change Password</label>
+                            <label class="form-check-label" for="exampleCheck1">Change password</label>
                           </div>
                     </div>
 

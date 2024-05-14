@@ -4,7 +4,46 @@
 [dbEmail] = "email"
 [dbFullname] = "fullname"
 [dbPhonenumber] = "phonenumber"
+[bgColor]="updateBG"
 (formSubmitted)="onChildFormUpdate($event)"
-(formDeleted)="onChildFormDelete()"></app-register-page>
+(formDeleted)="onChildFormDelete()"
+(btnLogout)="onLogout()">
+</app-register-page>
 
+<button #myModal [hidden]="true" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Launch demo modal
+  </button>
+  
+  <!-- Modal -->
+  <div class="modal modal-sm fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Identity Check</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form #identity_form = 'ngForm' (ngSubmit) = onSubmit(identity_form)>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Current Password</label>
+                  <input type="current_password" 
+                  class="form-control" 
+                  id="exampleInputPassword1"
+                  name="current_password"
+                  ngModel
+                  #current_password ='ngModel' 
+                  [ngClass] = "{'is-invalid': current_password.touched && current_password.invalid}"
+                  required
+                  >
+
+                  <div *ngIf="current_password.hasError('required')" class="m-0 p-0">
+                    <div  *ngIf = "current_password.touched && current_password.invalid"> <p class="text-danger fw-bold m-0 fs-7">Please enter your currect password</p> </div>
+                </div>
+                </div>
+                <button type="submit" class="btn btn-primary" [disabled]="identity_form.invalid">Submit</button>
+              </form>
+        </div>
+      </div>
+    </div>
+  </div>
 

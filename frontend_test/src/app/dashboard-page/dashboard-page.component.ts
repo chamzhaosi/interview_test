@@ -1,22 +1,24 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { UsersService } from '../services/users.service';
 import { User } from '../interfaces/user';
 import { RegisterPageComponent } from '../register-page/register-page.component';
-import { NgForm } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { NgClass, NgIf } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
-  imports: [RegisterPageComponent],
+  imports: [RegisterPageComponent, NgIf, NgClass, FormsModule],
   templateUrl: './dashboard-page.component.html',
   styleUrl: './dashboard-page.component.css'
 })
 export class DashboardPageComponent implements OnInit {
 
   title:string = "Update your data"
+  updateBG:string = "#503C3C"
   
-
+  showDoubleConfirmModel:boolean = true;
   username!:string;
   email!:string;
   fullname!:string;
@@ -24,7 +26,8 @@ export class DashboardPageComponent implements OnInit {
   user!:User
   
   constructor(private userService:UsersService, private router:Router){}
-  
+  @ViewChild('myModal') myModal!:ElementRef;
+
   ngOnInit(): void {
     this.userService.getUserData('dashboard').subscribe({
       next:(response:any) => {
@@ -43,12 +46,23 @@ export class DashboardPageComponent implements OnInit {
 
   onChildFormUpdate(updateForm:NgForm) {
     console.log(updateForm.value);
-    // Handle form submission here
+    this.myModal.nativeElement.click();;
   }
 
   onChildFormDelete() {
     console.log("User Want to delete");
-    // Handle form submission here
+    this.myModal.nativeElement.click();
   }
 
+  onLogout(){
+    this.userService.postLogout('logout').subscribe({
+      next:(reponses)=>{
+        this.router.navigate(['/login'])
+      }
+    })
+  }
+
+  onSubmit(updateForm:NgForm){
+    console.log(updateForm.value)
+  }
 }

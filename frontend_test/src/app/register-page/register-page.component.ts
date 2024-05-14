@@ -49,6 +49,7 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   constructor(private userService: UsersService, private websocketService: WebsocketService, private router: Router){
   }
 
+  @Input() bgColor: string = "#5C5470"
   @Input() dashboardTitle: string = "";
   @Input() dbUsername: string = "";
   @Input() dbEmail: string = "";
@@ -56,7 +57,7 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   @Input() dbPhonenumber: string = "";
   @Output() formSubmitted: EventEmitter<NgForm> = new EventEmitter<NgForm>();
   @Output() formDeleted: EventEmitter<null> = new EventEmitter<null>();
-
+  @Output() btnLogout: EventEmitter<null> = new EventEmitter<null>();
 
   ngAfterContentChecked(): void {
     this.userName = this.dbUsername
@@ -72,6 +73,10 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   handleUpdate(updateForm:NgForm) {
     // Emit an event when the form is submitted
     this.formSubmitted.emit(updateForm);
+  }
+
+  handleLogout(){
+    this.btnLogout.emit()
   }
 
   checkPasswordFormat(password:NgModel){
@@ -163,7 +168,7 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
     }
 
     if (input.name === "changsPasswordCheck"){
-      this.isShowPasswordInput = !input.value;
+      this.isShowPasswordInput = input.value;
       this.reset() // password checking
     }
   }
