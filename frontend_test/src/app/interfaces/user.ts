@@ -1,4 +1,5 @@
 export interface User{
+    id?:number | any
     username?:string | any
     password?:string | any
     current_password?:string | any

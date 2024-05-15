@@ -33,18 +33,22 @@ export class DashboardPageComponent implements OnInit{
   phonenumber!:string;
   current_password_input!:string;
   deleteBtnPress!:boolean;
+  actionBtnPress!:boolean;
   user!:User;
   uptUser!:User;
   rotationAngle:number = 0
 
   users: User[] = [];
-  total:number = 0
+  page:number = 0
   previousLink:string =""
   nextLink:string =""
   previousAvailable!:boolean
   nextAvailable!:boolean
   orderType!:'asc' | 'desc'
   meterDigit:string[] = [];
+  actionType:string[] = [];
+  actionID!:number;
+  actionIndex!:number;
 
   eachColumnOrderStatus: { [name: string]: SortOrder } = {}
   constructor(private userService:UsersService, private router:Router){}
@@ -69,9 +73,11 @@ ngOnInit(): void {
         this.meterDigit = this.rotationAngle.toString().split('');
 
         if (this.meterDigit.length < 4){
-          this.meterDigit
+          for (let i = 0; i<=(4-this.meterDigit.length); i++)
+          this.meterDigit.unshift("0")
         }
-
+        
+        this.getActionType()
         this.checkPageStatus()
         this.isAdminView = true
       }
@@ -136,8 +142,15 @@ ngOnInit(): void {
     });
   }
 
-  setMeterNumber(digits:number){
-    // digit to string 
+  getActionType(){
+    this.actionType = []
+    this.users.forEach(element => {
+      if (element.active){
+        this.actionType.push("Deactive")
+      }else{
+        this.actionType.push("Active")
+      }
+    });
 
   }
   
@@ -147,8 +160,8 @@ ngOnInit(): void {
         this.previousLink = response.body.previous;
         this.nextLink = response.body.next;
         this.users = response.body.results;
-        this.total = response.body.count;
         this.checkPageStatus()
+        this.getActionType()
       }
     });
   }
@@ -168,10 +181,12 @@ ngOnInit(): void {
   }
 
   previousBtn(){
+    this.page -= 1;
     this.getUsers(this.previousLink.split('?')[1]);
   }
 
   nextBtn(){
+    this.page += 1;
     this.getUsers(this.nextLink.split('?')[1])
   }
 
@@ -205,14 +220,13 @@ ngOnInit(): void {
   }
 
   onSubmit(identifyForm:NgForm){
-    if (!this.deleteBtnPress){
+    if (!this.deleteBtnPress && !this.actionBtnPress){
       this.uptUser.current_password = identifyForm.value.current_password
 
       this.userService.updateUserData("update_client", this.uptUser).subscribe({
         next:() => {
           this.updateMessage = "Update successfully!"
           this.updateStatus = "success"
-          this.closeBtnModal.nativeElement.click();
           identifyForm.reset();
         },
         error:(error)=>{
@@ -221,38 +235,75 @@ ngOnInit(): void {
             this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
           });
           this.updateStatus = "danger"
-          this.closeBtnModal.nativeElement.click();
           identifyForm.reset();
         }
       })
     }else{
-      this.uptUser = {
-        current_password : identifyForm.value.current_password,
-        active : false,
-      }
-      
-      this.userService.updateUserData("update_client", this.uptUser).subscribe({
-        next:() => {
-          this.updateMessage = "Account deleted successfully!"
-          this.updateStatus = "success"
-          this.closeBtnModal.nativeElement.click();
-          identifyForm.reset();
-          this.router.navigate(['/login'])
-        },
-        error:(error)=>{
-          this.updateMessage = ""
-          Object.keys(error.error).forEach(key => {
-            this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
-          });
-          this.updateStatus = "danger"
-          this.closeBtnModal.nativeElement.click();
-          identifyForm.reset();
+
+
+      if (!this.actionBtnPress){
+        this.uptUser = {
+          current_password : identifyForm.value.current_password,
+          active : false,
         }
-      })
+
+        this.userService.updateUserData("update_client", this.uptUser).subscribe({
+          next:() => {
+            this.updateMessage = "Account deleted successfully!"
+            this.updateStatus = "success"
+            identifyForm.reset();
+            this.router.navigate(['/login'])
+          },
+          error:(error)=>{
+            this.updateMessage = ""
+            Object.keys(error.error).forEach(key => {
+              this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
+            });
+            this.updateStatus = "danger"
+            identifyForm.reset();
+          }
+        })
+      }else{
+        this.uptUser = {
+          current_password : identifyForm.value.current_password,
+          active : this.actionType[this.actionIndex] === "Active" ? true : false
+        }
+
+        console.log(this.uptUser.active)
+
+        this.userService.updateUserActive("update_clients", this.uptUser, this.actionID).subscribe({
+          next:() => {
+            this.updateMessage = "Account update successfully!"
+            this.updateStatus = "success"
+            identifyForm.reset();
+            this.updateValue();
+          },
+          error:(error)=>{
+            this.updateMessage = ""
+            Object.keys(error.error).forEach(key => {
+              this.updateMessage += `${error.error[key]}`.charAt(0).toUpperCase() + `${error.error[key]}`.slice(1) + (`${error.error[key]}`.endsWith('.') ? ' ' : '. ')  // Add a newline for each error
+            });
+            this.updateStatus = "danger"
+            identifyForm.reset();
+          }
+        })
+      }
     }
+    this.closeBtnModal.nativeElement.click();
+  }
+  updateValue(){
+    let user = this.users.find(u => u.id === this.actionID);
+    if (user) {
+        user.active = !user.active;  // Update the value
+    }
+
+    this.actionType[this.actionIndex] = user!.active ? "Deactive" : "Active"
   }
 
-  delay(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+  onAction(id:number, index:number){
+    this.actionBtnPress = true
+    this.actionID = id
+    this.actionIndex = index
+    this.myModal.nativeElement.click();
   }
 }

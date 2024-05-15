@@ -12,43 +12,42 @@
     (formDeleted)="onChildFormDelete()"
     (btnLogout)="onLogout()">
     </app-register-page>
-  
-    <button #myModal [hidden]="true" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"></button>
-    
-    <!-- Modal -->
-    <div class="modal modal-sm fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalLabel">Identity Check</h1>
-            <button #closeBtnModal type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-              <form #identity_form = 'ngForm' (ngSubmit) = onSubmit(identity_form)>
-                  <div class="mb-3">
-                    <label for="exampleInputPassword1" class="form-label">Current Password</label>
-                    <input type="password" 
-                    class="form-control" 
-                    id="exampleInputPassword1"
-                    name="current_password"
-                    ngModel
-                    [(ngModel)] = "current_password_input"
-                    #current_password ='ngModel' 
-                    [ngClass] = "{'is-invalid': current_password.touched && current_password.invalid}"
-                    required
-                    >
-  
-                    <div *ngIf="current_password.hasError('required')" class="m-0 p-0">
-                      <div  *ngIf = "current_password.touched && current_password.invalid"> <p class="text-danger fw-bold m-0 fs-7">Please enter your currect password</p> </div>
-                  </div>
-                  </div>
-                  <button type="submit" class="btn btn-primary" [disabled]="identity_form.invalid">Submit</button>
-                </form>
-          </div>
+  </ng-template>
+
+  <button #myModal [hidden]="true" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"></button>
+  <!-- Modal -->
+  <div class="modal modal-sm fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Identity Check</h1>
+          <button #closeBtnModal type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form #identity_form = 'ngForm' (ngSubmit) = onSubmit(identity_form)>
+                <div class="mb-3">
+                  <label for="exampleInputPassword1" class="form-label">Current Password</label>
+                  <input type="password" 
+                  class="form-control" 
+                  id="exampleInputPassword1"
+                  name="current_password"
+                  ngModel
+                  [(ngModel)] = "current_password_input"
+                  #current_password ='ngModel' 
+                  [ngClass] = "{'is-invalid': current_password.touched && current_password.invalid}"
+                  required
+                  >
+
+                  <div *ngIf="current_password.hasError('required')" class="m-0 p-0">
+                    <div  *ngIf = "current_password.touched && current_password.invalid"> <p class="text-danger fw-bold m-0 fs-7">Please enter your currect password</p> </div>
+                </div>
+                </div>
+                <button type="submit" class="btn btn-primary" [disabled]="identity_form.invalid">Submit</button>
+              </form>
         </div>
       </div>
     </div>
-  </ng-template>
+  </div>
 
   <div *ngIf = "isAdminView; else updateForm">
     <div class="container mt-3">
@@ -56,24 +55,31 @@
         <h3>List of clients</h3>
         <button type="submit" class="btn btn-danger" (click)="onLogout()" >Logout</button>
       </div>
+      <div class="d-flex justify-content-center">
+        <div *ngIf="updateMessage" class="alert alert-{{updateStatus}}"> {{updateMessage}} </div>
+      </div>
       <div class="table-responsive-lg">
         <table #clientListTable class="table table-light table-striped ">
           <thead>
             <tr>
+              <th scope="col">#</th>
               <th #username class="column_head" scope="col" (click)="onClickColumnHeader(username)">Username</th>
               <th #email  class="column_head" scope="col" (click)="onClickColumnHeader(email)">Email</th>
               <th #fullname class="column_head" scope="col" (click)="onClickColumnHeader(fullname)">Full Name</th>
               <th #phone_number class="column_head" scope="col" (click)="onClickColumnHeader(phone_number)">Phone Number</th>
               <th #active class="column_head" scope="col" (click)="onClickColumnHeader(active)">Active</th>
+              <th scope="col">Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let user of users">
+            <tr *ngFor="let user of users; let i = index">
+              <td>{{ i + 1 + page * 10}}</td>
               <td>{{ user.username }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user.fullname }}</td>
               <td>{{ user.phone_number }}</td>
               <td>{{ user.active }}</td>
+              <td class="text-center"><button class="btn" [ngClass]="user.active ? 'btn-danger': 'btn-warning'" (click)="onAction(user.id, i)"> {{actionType[i]}} </button></td>
             </tr>
           </tbody>
         </table>
@@ -88,40 +94,39 @@
         </div>
       </div>
     </div>
-    </div>
+  </div>
 
-    <div class="d-flex justify-content-around">
-      <div class="rounded wh-variaty m-2 rpm-meter">
-        <div class="labels">
-          <div class="label">{{ rotationAngle }}</div>
+
+    <div class="container border-dark border-top py-2">
+      <h3 class="text-center">
+        Number of user registrations 
+      </h3>
+      <div class="d-flex justify-content-around row">
+        <div class="rounded wh-variaty m-2 rpm-meter col-lg-6 col-12">
+          <div class="labels">
+            <div class="label">{{ rotationAngle }}</div>
+          </div>
+          <div class="needle" [style.transform]="'translateX(-50%) rotate(' + rotationAngle + 'deg)'"></div>
         </div>
-        <div class="needle" [style.transform]="'translateX(-50%) rotate(' + rotationAngle + 'deg)'"></div>
-      </div>
-
-      <div class="d-flex justify-content-center">
-        <div class="d-flex align-items-center">
-          <div class="d-flex border border-2 mtr-container-bg rounded-4">
-            <!-- <div class="border border-dark border-2 border-end-0 px-3 rounded-start mtr-bg fw-bold d-flex align-items-center">
-              <h1>{{ths_digit}}</h1>
+  
+        <div class="d-flex justify-content-center col-lg-6 col-12">
+          <div class="d-flex align-items-center">
+            <div class="d-flex border border-2 mtr-container-bg rounded-4">  
+              <div *ngFor="let digit of meterDigit; let i = index"
+                [ngClass]="{
+                  'border-end-0': i === 0 || i === 1 || i === 2,
+                  'border-start-0': i === 3 || i === 1 || i === 2,
+                  'rounded-start': i === 0,
+                  'rounded-end': i === 3,
+                  'border border-dark border-2 px-3 mtr-bg fw-bold d-flex align-items-center': true
+                }">
+                <h1>{{digit}}</h1>
+              </div>
+  
             </div>
-            <div class="border border-dark border-2 border-end-0 border-start-0 px-3 mtr-bg fw-bold d-flex align-items-center">
-              <h1>{{hur_digit}}</h1>
-            </div>
-            <div class="border border-dark border-2 border-end-0 border-start-0 px-3 mtr-bg fw-bold d-flex align-items-center">
-              <h1>{{ten_digit}}</h1>
-            </div>
-            <div class="border border-dark border-2 border-start-0 px-3 rounded-end mtr-bg fw-bold d-flex align-items-center">
-              <h1>{{one_digit}}</h1>
-            </div> -->
-
-            <div *ngFor="let digit of meterDigit"
-              class="border border-dark border-2 border-end-0 px-3 rounded-start mtr-bg fw-bold d-flex align-items-center">
-              <h1>{{digit}}</h1>
-            </div>
-
           </div>
         </div>
       </div>
+      
     </div>
-    
-  </div>
+    </div>

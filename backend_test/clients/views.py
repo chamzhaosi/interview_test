@@ -175,15 +175,22 @@ def update_user_detail(request, id):
         client = ClientsAccount.objects.get(id=payload["id"]) # who process the task
 
         if client.role == "ADMIN" and client.active:
-            t_client = ClientsAccount.objects.get(id=id) # which client want to be deactived
-            serializer = ClientDeactivedSerializer(t_client, data=request.data)
             
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            
-            status = "actived" if serializer.data['active']  else "deactived" 
-            response.data = {"success": f"{t_client.username } has been {status}!"}
-            response.status_code = 200  
+            # check whether current password correct or not
+            if check_password(request.data["current_password"], client.password):
+                t_client = ClientsAccount.objects.get(id=id) # which client want to be deactived
+                serializer = ClientDeactivedSerializer(t_client, data=request.data)
+                
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                
+                status = "actived" if serializer.data['active']  else "deactived" 
+                response.data = {"success": f"{t_client.username } has been {status}!"}
+                response.status_code = 200  
+                
+            else:
+                response.data = {"error": "Incorrect current password!"}
+                response.status_code = 401
             
         else:
             response.data = {"error": "User no premission to do so or User account is not available!"}
