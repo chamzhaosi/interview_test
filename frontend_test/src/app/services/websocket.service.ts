@@ -40,15 +40,17 @@ export class WebsocketService {
       let type = response.status;
 
       if (type ==='SUCCESS' || type === 'INVALID' ||  type === 'ERROR') {
-
-        this.messages.next(event.data);
-
+        console.log("fadsfasdf")
         this.websocket?.send(JSON.stringify({
           type: 'delete',
           data: {
               task_id: task_id
           }
         }));
+
+        console.log("12345")
+
+        this.messages.next(event.data);
       }
 
       if (type === 'DELETED') {

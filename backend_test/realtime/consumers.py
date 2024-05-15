@@ -53,13 +53,16 @@ class CallConsumer(WebsocketConsumer):
                 
         else:
             # once get the status from 'check' or task_message, then it from TmpRegisterStatus db
+            print("delete")
             if eventType == 'delete':
+                print("delete 1")
                 TmpRegisterStatus.objects.all().filter(task_id=task_id).delete()
-                
+                print("delete 3")
                 self.send(text_data=json.dumps({
                     'status': "DELETED",
                     'remark': "The task id has been deleted"
                 }))
+                print("delete 4")
 
     # this will be invoke by celery_event_listener.py
     def task_message(self, event):
