@@ -176,7 +176,95 @@ export DJANGO_SETTINGS_MODULE=backend_test.settings
 
 cd /home/engineer/interview_test/backend_test
 # python3 manage.py runserver_plus --key-file /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem --cert-file /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
-daphne -e ssl:8000:privateKey=/etc/nginx/ssl/chamzhaosi.com-main-privkey.pem:certKey=/etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem backend_test.asgi:application
+# daphne -e ssl:8000:privateKey=/etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem:certKey=/etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem backend_test.asgi:application
+python3 manage.py runserver 0.0.0.0:8000
 
 cd /home/engineer/interview_test/frontend_test
-ng serve --ssl true --ssl-key /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem --ssl-cert /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
+# ng serve --host 0.0.0.0 --ssl true --ssl-key /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem --ssl-cert /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem
+ng serve --host 0.0.0.0 
+
+###############################################################################
+### Configure Nginx as a Web Proxy
+###############################################################################
+
+# chamzhaosi.com
+# metropolice.chamzhaosi.com
+cp /home/engineer/chamzhaosi.com-sub-fullchain.pem /etc/nginx/ssl/
+cp /home/engineer/chamzhaosi.com-sub-privkey.pem /etc/nginx/ssl/
+
+cat > /etc/nginx/conf.d/metropolice.chamzhaosi.com.conf << EOF
+server {
+  listen 80;
+  listen [::]:80;
+  server_name metropolice.chamzhaosi.com;
+  rewrite ^ https://metropolice.chamzhaosi.com\$request_uri? permanent;
+}
+server {
+  listen 443 ssl;
+  listen [::]:443 ssl;
+  ssl_certificate /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem;
+  ssl_certificate_key /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem;
+  server_name metropolice.chamzhaosi.com;
+  location / {
+    proxy_pass http://192.168.0.170:4200/;
+  }
+  location /ws {
+    # proxy_pass http://192.168.0.170:8000/ws;
+    proxy_pass http://192.168.0.170:8000/ws;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade \$http_upgrade;
+    proxy_set_header Connection "Upgrade";
+  }
+  # Py Django
+  location /api {
+      proxy_pass http://192.168.0.170:8000/api;
+      proxy_set_header Host \$host;
+      proxy_set_header X-Real-IP \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto \$scheme;
+  }
+  # Py Django
+  location /admin {
+      proxy_pass http://192.168.0.170:8000/admin;
+      proxy_set_header Host \$host;
+      proxy_set_header X-Real-IP \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto \$scheme;
+  }
+}
+EOF
+/etc/init.d/nginx restart
+
+# https://192.168.0.170:8000/admin/
+# https://metropolice.chamzhaosi.com/admin/
+
+###############################################################################
+### Run Required Command in Screen Mode
+###############################################################################
+su -
+whoami
+# root
+apt -y install screen
+exit
+whoami
+# username
+
+# Check Port and Screen Process - BEFORE
+screen -ls
+ss -tunpl | grep '8000\|4200\|6379'
+
+# Run Screen Process
+screen -S django -dm bash -c 'cd /home/engineer/interview_test/backend_test && python3 manage.py runserver 0.0.0.0:8000'
+screen -S angular -dm bash -c 'cd /home/engineer/interview_test/frontend_test && ng serve --host 0.0.0.0'
+screen -S celery -dm bash -c 'cd /home/engineer/interview_test/backend_test && celery -A backend_test worker -l info -E'
+
+# Check Port and Screen Process - AFTER
+screen -ls
+ss -tunpl | grep '8000\|4200\|6379'
+
+# Kill Screen Process
+screen -S django -X quit
+screen -S angular -X quit
+screen -S celery -X quit
+
+###############################################################################
