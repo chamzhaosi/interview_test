@@ -25,8 +25,10 @@ exit
 su -
 pip install django --break-system-packages
 pip install djangorestframework --break-system-packages
-pip install django-phonenumber-field[phonenumbers] --break-system-packages
-pip install phonenumbers --break-system-packages
+
+# Incorrect validation
+# pip install django-phonenumber-field[phonenumbers] --break-system-packages 
+# pip install phonenumbers --break-system-packages
 
 # To solve the problem of mysqlclient installation
 # Refer: https://stackoverflow.com/questions/76585758/mysqlclient-cannot-install-via-pip-cannot-find-pkg-config-name-in-ubuntu
@@ -146,23 +148,25 @@ npm init @angular frontend_test --no-standalone
 # ng new --no-standalone
 
 npm install bootstrap
-npm install ngx-pagination
-npm install jquery --save 
-npm install datatables.net --save 
-npm install datatables.net-dt --save 
-npm install datatables.net-responsive-dt --save 
-npm install angular-datatables --save 
-npm install @types/jquery --save-dev 
-npm install @types/datatables.net --save-dev 
-npm i @popperjs/core 
-npm install datatables.net-buttons --save 
-npm install datatables.net-buttons-dt --save 
-npm install @types/datatables.net-buttons --save-dev 
-npm install jszip --save
 
-rm -rf node_modules
-rm package-lock.json
-npm install
+# ngx-pagination not work, manully do pagination and sorting
+
+# npm install ngx-pagination
+# npm install jquery --save 
+# npm install datatables.net --save 
+# npm install datatables.net-dt --save 
+# npm install datatables.net-responsive-dt --save 
+# npm install angular-datatables --save 
+# npm install @types/jquery --save-dev 
+# npm install @types/datatables.net --save-dev 
+# npm i @popperjs/core 
+# npm install datatables.net-buttons --save 
+# npm install datatables.net-buttons-dt --save 
+# npm install @types/datatables.net-buttons --save-dev 
+# npm install jszip --save
+# rm -rf node_modules
+# rm package-lock.json
+# npm install
 ###############################################################################
 ### run server with ssl key and cert
 ###############################################################################

@@ -6,7 +6,6 @@ import { FormsModule, NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 
-declare var $: any;  // Declare jQuery symbol
 enum SortOrder {
   Ascending = "asc",
   Descending = "desc"
@@ -21,7 +20,7 @@ enum SortOrder {
 })
 export class DashboardPageComponent implements OnInit{
 
-  isAdminView:boolean = false
+  isAdminView!:boolean
 
   title:string = "Update your data"
   updateBG:string = "#503C3C"
@@ -50,24 +49,23 @@ export class DashboardPageComponent implements OnInit{
 
   @ViewChild('myModal') myModal!:ElementRef;
   @ViewChild('closeBtnModal') closeBtnModal!:ElementRef;
-  @ViewChild('clientListTable', { static: true }) clientListTable!: ElementRef;
 
 ngOnInit(): void {
   this.userService.getUserData('dashboard').subscribe({
     next: (response:any) => {
       if (!response.body["count"]){
-        this.isAdminView = false
         this.username = response.body["client_info"]['username']
         this.email = response.body["client_info"]['email']
         this.fullname = response.body["client_info"]['name']
         this.phonenumber = response.body["client_info"]['phone_number']
+        this.isAdminView = false
       }else{
-        this.isAdminView = true
         this.previousLink = response.body.previous;
         this.nextLink = response.body.next;
         this.users = response.body.results;
         this.total = response.body.count;
         this.checkPageStatus()
+        this.isAdminView = true
       }
     },
 

@@ -50,12 +50,13 @@
     </div>
   </ng-template>
 
-    <div *ngIf = "isAdminView; else updateForm">
-      <div class="container mt-3">
-        <div class="d-flex justify-content-between my-3">
-          <h3>List of clients</h3>
-          <button type="submit" class="btn btn-danger" (click)="onLogout()" >Logout</button>
-        </div>
+  <div *ngIf = "isAdminView; else updateForm">
+    <div class="container mt-3">
+      <div class="d-flex justify-content-between my-3">
+        <h3>List of clients</h3>
+        <button type="submit" class="btn btn-danger" (click)="onLogout()" >Logout</button>
+      </div>
+      <div class="table-responsive-lg">
         <table #clientListTable class="table table-light table-striped ">
           <thead>
             <tr>
@@ -76,15 +77,16 @@
             </tr>
           </tbody>
         </table>
-      <div class="d-flex justify-content-end mb-3">
-        <div class="d-flex justify-content-between">
-          <div class="mx-3">
-            <button class="btn" [ngClass] = "!previousAvailable ? 'btn-light' : 'btn-primary'" (click)="previousBtn()" [disabled] = "!previousAvailable">Previous</button>
-          </div>
-          <div>
-            <button class="btn" [ngClass] = "!nextAvailable ? 'btn-light' : 'btn-primary'" (click)="nextBtn()" [disabled] = "!nextAvailable">Next</button>
-          </div>
+      </div>
+    <div class="d-flex justify-content-end mb-3">
+      <div class="d-flex justify-content-between">
+        <div class="mx-3">
+          <button class="btn" [ngClass] = "!previousAvailable ? 'btn-light' : 'btn-primary'" (click)="previousBtn()" [disabled] = "!previousAvailable">Previous</button>
+        </div>
+        <div>
+          <button class="btn" [ngClass] = "!nextAvailable ? 'btn-light' : 'btn-primary'" (click)="nextBtn()" [disabled] = "!nextAvailable">Next</button>
         </div>
       </div>
-      </div>
+    </div>
+    </div>
   </div>
