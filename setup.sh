@@ -48,7 +48,6 @@ TRUNCATE TABLE django_migrations;
 # Create a project
 django-admin startproject backend_test
 
-
 ###############################################################################
 ### Install MySQL (mariadb) in debain
 ###############################################################################
@@ -167,8 +166,9 @@ npm install bootstrap
 # rm -rf node_modules
 # rm package-lock.json
 # npm install
+
 ###############################################################################
-### run server with ssl key and cert
+### Run server with ssl key and cert
 ###############################################################################
 su - 
 pip install django-extensions Werkzeug --break-system-packages
@@ -176,12 +176,56 @@ export DJANGO_SETTINGS_MODULE=backend_test.settings
 
 cd /home/engineer/interview_test/backend_test
 # python3 manage.py runserver_plus --key-file /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem --cert-file /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
-# daphne -e ssl:8000:privateKey=/etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem:certKey=/etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem backend_test.asgi:application
-python3 manage.py runserver 0.0.0.0:8000
+daphne -e ssl:8000:privateKey=/etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem:certKey=/etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem backend_test.asgi:application
+# python3 manage.py runserver 0.0.0.0:8000
 
 cd /home/engineer/interview_test/frontend_test
-# ng serve --host 0.0.0.0 --ssl true --ssl-key /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem --ssl-cert /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem
-ng serve --host 0.0.0.0 
+ng serve --host 0.0.0.0 --ssl true --ssl-key /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem --ssl-cert /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem
+# ng serve --host 0.0.0.0 
+
+###############################################################################
+### Generate SSL certificate and private key
+###############################################################################
+
+# Generate SSL Cerst
+apt -y install python3-certbot-apache certbot python3-pip
+pip3 install --break-system-packages certbot-dns-cloudflare
+systemctl disable apache2
+systemctl stop apache2
+
+cat > /etc/letsencrypt/dnscloudflare.ini << EOF
+# CloudFlare API key information
+dns_cloudflare_api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+dns_cloudflare_email = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+EOF
+chmod 644 /etc/letsencrypt/dnscloudflare.ini
+
+certbot certificates
+
+certbot delete --noninteractive --cert-name chamzhaosi.com
+# Generate main domain SSL certs
+certbot certonly --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini -d chamzhaosi.com
+# Generate wild card sub-domain SSL certs
+certbot certonly --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/dnscloudflare.ini -d *.chamzhaosi.com
+# Install SSL
+
+mkdir /etc/nginx/ssl/
+touch /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem
+touch /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
+
+cat /etc/letsencrypt/live/chamzhaosi.com/privkey.pem > /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem
+cat /etc/letsencrypt/live/chamzhaosi.com/fullchain.pem > /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
+cat /etc/letsencrypt/live/chamzhaosi.com-0001/privkey.pem > /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem
+cat /etc/letsencrypt/live/chamzhaosi.com-0001/fullchain.pem > /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem
+
+cat /etc/nginx/ssl/chamzhaosi.com-main-privkey.pem
+cat /etc/nginx/ssl/chamzhaosi.com-main-fullchain.pem
+
+cat /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem
+cat /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem
+
+scp /etc/nginx/ssl/chamzhaosi.com-sub-privkey.pem engineer@192.168.0.11:/home/engineer/
+scp /etc/nginx/ssl/chamzhaosi.com-sub-fullchain.pem engineer@192.168.0.11:/home/engineer/
 
 ###############################################################################
 ### Configure Nginx as a Web Proxy
@@ -267,4 +311,4 @@ screen -S django -X quit
 screen -S angular -X quit
 screen -S celery -X quit
 
-###############################################################################
+##################################### End #####################################

@@ -5,19 +5,17 @@
 
 # Todo List:
 ## Angular -> Frontend
-    1. [] Admin register page
-            [] Redirect to the login page, if successful.
-    2. [] Client Register page - for client
-            [] Redirect to the login page, if successful.
-            [] Before call the API, connect the 
-    3. [] Login page - for client and admin
-            [] Redirect to the dashboard page, if successful.
-                [] Data Include: Name, Email, and Phone number.
-    4. [] Dashboard page
-            [] if admin account, show all user information in a table
-                [] Can sorting by pressing column name
-                [] Pagination
-            [] if client account, show themselve information only.
+    1. [x] Client Register page - for client
+            [x] Redirect to the login page, if successful.
+    2. [x] Login page - for client and admin
+            [x] Redirect to the dashboard page (admin / client), if successful.
+    3. [x] Dashboard page (admin)
+            [x] if client account, show themselve information in a update and delete form.
+    4. [x] Admin dashboard page (Login by default account)
+            [x] Table show all user data
+            [x] Can sorting by pressing column name
+            [x] Pagination
+            [x] Odometer for show number of user
 
 ## Django RESTful -> Backend
     1. [x] Change default DB to MqSQL.
