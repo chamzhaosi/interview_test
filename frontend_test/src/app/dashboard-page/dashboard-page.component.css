@@ -1,0 +1,12 @@
+.column_head{
+    cursor: pointer;
+}
+
+.column_head:active{
+    background-color: lightgray;
+}
+
+table, th, td{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
