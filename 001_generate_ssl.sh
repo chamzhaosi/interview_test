@@ -7,7 +7,7 @@ systemctl stop apache2
 cat > /etc/letsencrypt/dnscloudflare.ini << EOF
 # CloudFlare API key information
 dns_cloudflare_api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-dns_cloudflare_email = chamzhaosi@gmail.com
+dns_cloudflare_email = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 EOF
 chmod 644 /etc/letsencrypt/dnscloudflare.ini
 
