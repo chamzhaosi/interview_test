@@ -62,10 +62,12 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   @Output() btnLogout: EventEmitter<null> = new EventEmitter<null>();
 
   ngAfterContentChecked(): void {
-    this.userName = this.dbUsername
-    this.userEmail = this.dbEmail
-    this.userFullname = this.dbFullname
-    this.userPhoneNumber = this.dbPhonenumber
+    if(this.dashboardTitle != ""){
+      this.userName = this.dbUsername
+      this.userEmail = this.dbEmail
+      this.userFullname = this.dbFullname
+      this.userPhoneNumber = this.dbPhonenumber
+    }
   }
   
   // let dashboard handle the submission
@@ -224,14 +226,14 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
                   // else show the error message and add is-invalid class to the related input
                   this.showMessageColor = "danger"
                   this.registerRemark = this.formatErrorMessage(result.remark)
-                  
+
                   if (this.registerRemark.toLowerCase().includes("username"))
                     this.usernameExists = true
   
                   if (this.registerRemark.toLowerCase().includes("email"))
                     this.emailExists = true
-  
                   this.showMessage = true
+
                   this.autoFillInData();
                   this.reset();
                 }
@@ -252,7 +254,6 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   }
 
   formatErrorMessage(errorString:string):string{
-    console.log(errorString.split(":").length)
     if (errorString.split(":").length > 1){
       let error_list:string[] = [];
 
@@ -333,7 +334,7 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
   // isMatchPassword(password:string, c_password:string):boolean{
   //   return false
   // }
-
+  
 
   // Once the form disappear, everything will gone,
   // then this function will auto fillin again part of input value, based on what user previous submitted
@@ -342,6 +343,9 @@ export class RegisterPageComponent implements  AfterContentChecked, OnDestroy {
     this.userEmail = this.newUser.email;
     this.userFullname = this.newUser.fullname;
     this.userPhoneNumber = this.newUser.phone_number;
+
+    console.log(this.newUser.username)
+    console.log( this.userName)
   }
 
   // let the password checking red again

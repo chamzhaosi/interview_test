@@ -21,8 +21,8 @@ export class UsersService {
     return this.http.get(fullUrl, { withCredentials: true, observe: 'response' })
   }
 
-  getAllUserData(path: string, page: number, limit: number){
-    let fullUrl: string = env.http.apiUrl + path + `/?page=${page}&limit=${limit}`;
+  getAllUserData(path: string, para: string){
+    let fullUrl: string = env.http.apiUrl + path + `/?${para}`;
     return this.http.get(fullUrl, { withCredentials: true, observe: 'response' })
   }
 

@@ -7,6 +7,8 @@ import { Router } from '@angular/router';
 import { NgClass, NgFor, NgIf } from '@angular/common';
 import { NgxPaginationModule } from 'ngx-pagination';
 
+declare var $: any;  // Declare jQuery symbol
+
 @Component({
   selector: 'app-dashboard-page',
   standalone: true,
@@ -32,15 +34,19 @@ export class DashboardPageComponent implements OnInit {
   user!:User;
   uptUser!:User;
 
-  users: any[] = [];
-  total = 0;
-  page = 1;
-  limit = 10;
+  users: User[] = [];
+  total:number = 0
+  previousLink:string =""
+  nextLink:string =""
+  previousAvailable!:boolean
+  nextAvailable!:boolean
 
   constructor(private userService:UsersService, private router:Router){}
 
   @ViewChild('myModal') myModal!:ElementRef;
   @ViewChild('closeBtnModal') closeBtnModal!:ElementRef;
+  @ViewChild('dataTable', { static: true }) clientListTable!: ElementRef;
+  dataTable: any;
 
   ngOnInit(): void {
     this.userService.getUserData('dashboard').subscribe({
@@ -51,13 +57,20 @@ export class DashboardPageComponent implements OnInit {
           this.fullname = response.body["client_info"]['name']
           this.phonenumber = response.body["client_info"]['phone_number']
         }else{
+          console.log(response.body.results)
+          console.log(this.clientListTable)
+          console.log(this.closeBtnModal)
+
+          this.dataTable  = $(this.clientListTable.nativeElement).DataTable({
+            responsive: true
+          });
+
           this.isAdminView = true
-           
-          console.log(response.body)
+          this.previousLink = response.body.previous;
+          this.nextLink = response.body.next;
           this.users = response.body.results;
           this.total = response.body.count;
-
-          console.log(this.users)
+          this.checkPageStatus()
         }
       },
 
@@ -67,18 +80,38 @@ export class DashboardPageComponent implements OnInit {
     })
   }
 
-  getUsers(page: number, limit: number): void {
-    this.userService.getAllUserData("dashboard", page, limit).subscribe({
+  getUsers(para:string): void {
+    this.userService.getAllUserData("dashboard",para).subscribe({
       next:(response:any)=>{
-        console.log(response.body)
-        this.users = response.results;
-        this.total = response.count;
+        this.previousLink = response.body.previous;
+        this.nextLink = response.body.next;
+        this.users = response.body.results;
+        this.total = response.body.count;
+        this.checkPageStatus()
       }
     });
   }
 
-  onPageChange(page: any): void {
-    this.getUsers(page, this.limit);
+  checkPageStatus(){
+    if (this.previousLink != null){
+      this.previousAvailable = true
+    }else{
+      this.previousAvailable = false
+    }
+
+    if (this.nextLink != null){
+      this.nextAvailable = true
+    }else{
+      this.nextAvailable = false
+    }
+  }
+
+  previousBtn(){
+    this.getUsers(this.previousLink.split('?')[1]);
+  }
+
+  nextBtn(){
+    this.getUsers(this.nextLink.split('?')[1])
   }
 
   onChildFormUpdate(updateForm:NgForm) {

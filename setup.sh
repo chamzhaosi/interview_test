@@ -91,6 +91,7 @@ redis-server
 systemctl status redis
 
 # run celery
+cd /home/engineer/interview_test/backend_test
 celery -A backend_test worker -l info -E
 
 ###############################################################################
@@ -146,7 +147,22 @@ npm init @angular frontend_test --no-standalone
 
 npm install bootstrap
 npm install ngx-pagination
+npm install jquery --save 
+npm install datatables.net --save 
+npm install datatables.net-dt --save 
+npm install datatables.net-responsive-dt --save 
+npm install angular-datatables --save 
+npm install @types/jquery --save-dev 
+npm install @types/datatables.net --save-dev 
+npm i @popperjs/core 
+npm install datatables.net-buttons --save 
+npm install datatables.net-buttons-dt --save 
+npm install @types/datatables.net-buttons --save-dev 
+npm install jszip --save
 
+rm -rf node_modules
+rm package-lock.json
+npm install
 ###############################################################################
 ### run server with ssl key and cert
 ###############################################################################
