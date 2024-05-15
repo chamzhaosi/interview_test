@@ -35,6 +35,7 @@ export class DashboardPageComponent implements OnInit{
   deleteBtnPress!:boolean;
   user!:User;
   uptUser!:User;
+  rotationAngle:number = 0
 
   users: User[] = [];
   total:number = 0
@@ -43,6 +44,7 @@ export class DashboardPageComponent implements OnInit{
   previousAvailable!:boolean
   nextAvailable!:boolean
   orderType!:'asc' | 'desc'
+  meterDigit:string[] = [];
 
   eachColumnOrderStatus: { [name: string]: SortOrder } = {}
   constructor(private userService:UsersService, private router:Router){}
@@ -63,7 +65,13 @@ ngOnInit(): void {
         this.previousLink = response.body.previous;
         this.nextLink = response.body.next;
         this.users = response.body.results;
-        this.total = response.body.count;
+        this.rotationAngle = response.body.count;
+        this.meterDigit = this.rotationAngle.toString().split('');
+
+        if (this.meterDigit.length < 4){
+          this.meterDigit
+        }
+
         this.checkPageStatus()
         this.isAdminView = true
       }
@@ -126,6 +134,11 @@ ngOnInit(): void {
   
       return 0;
     });
+  }
+
+  setMeterNumber(digits:number){
+    // digit to string 
+
   }
   
   getUsers(para:string): void {

@@ -89,4 +89,39 @@
       </div>
     </div>
     </div>
+
+    <div class="d-flex justify-content-around">
+      <div class="rounded wh-variaty m-2 rpm-meter">
+        <div class="labels">
+          <div class="label">{{ rotationAngle }}</div>
+        </div>
+        <div class="needle" [style.transform]="'translateX(-50%) rotate(' + rotationAngle + 'deg)'"></div>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <div class="d-flex align-items-center">
+          <div class="d-flex border border-2 mtr-container-bg rounded-4">
+            <!-- <div class="border border-dark border-2 border-end-0 px-3 rounded-start mtr-bg fw-bold d-flex align-items-center">
+              <h1>{{ths_digit}}</h1>
+            </div>
+            <div class="border border-dark border-2 border-end-0 border-start-0 px-3 mtr-bg fw-bold d-flex align-items-center">
+              <h1>{{hur_digit}}</h1>
+            </div>
+            <div class="border border-dark border-2 border-end-0 border-start-0 px-3 mtr-bg fw-bold d-flex align-items-center">
+              <h1>{{ten_digit}}</h1>
+            </div>
+            <div class="border border-dark border-2 border-start-0 px-3 rounded-end mtr-bg fw-bold d-flex align-items-center">
+              <h1>{{one_digit}}</h1>
+            </div> -->
+
+            <div *ngFor="let digit of meterDigit"
+              class="border border-dark border-2 border-end-0 px-3 rounded-start mtr-bg fw-bold d-flex align-items-center">
+              <h1>{{digit}}</h1>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
   </div>
